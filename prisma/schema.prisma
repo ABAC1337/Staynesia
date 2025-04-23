@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Guest {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String?
+  email        String?    @unique
+  hashPassword String?
+  imageUrl     String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  bookings     Booking[]
+  reviews      Review[]
+  wishlists    Wishlist[]
+}
+
+model Host {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String?
+  email        String?   @unique
+  hashPassword String?
+  imageUrl     String?
+  ratings      Float?
+  review       Int
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  listings     Listing[]
+}
+
+model Wishlist {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  guestId   String   @db.ObjectId
+  listingId String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  guest     Guest    @relation(fields: [guestId], references: [id])
+  listings  Listing  @relation(fields: [listingId], references: [id])
+}
+
+model Listing {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  hostId      String?        @db.ObjectId
+  province    String?
+  city        String?
+  category    String?
+  title       String?
+  description String
+  imgUrl      String[]
+  facility    String[]
+  maxGuest    BigInt
+  numBedroom  Int
+  numBathroom Int
+  price       BigInt?
+  ratingCount Float
+  soldCount   Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  host        Host?          @relation(fields: [hostId], references: [id])
+  bookings    Booking[]
+  reviews     Review[]
+  wishlists   Wishlist[]
+}
+
+model Booking {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  guestId    String    @db.ObjectId
+  listingId  String    @db.ObjectId
+  checkIn    DateTime?
+  checkOut   DateTime?
+  totalPrice BigInt
+  status     String
+  payment    Payment[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  listing    Listing   @relation(fields: [listingId], references: [id])
+  guest      Guest     @relation(fields: [guestId], references: [id])
+}
+
+model Payment {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId     String    @db.ObjectId
+  paymentMethod String?
+  paymentStatus String?
+  amount        BigInt?
+  paidAt        DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  booking       Booking   @relation(fields: [bookingId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  guestId   String   @db.ObjectId
+  listingId String   @db.ObjectId
+  rating    Int
+  reviews   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  guest     Guest    @relation(fields: [guestId], references: [id])
+}
