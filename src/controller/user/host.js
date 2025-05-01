@@ -1,15 +1,14 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const DB = require('../../db/schema')
 
 const createHost = async (name, email, hashPass) => {
-    return await prisma.Guest.create({
+    return await DB.Host.create({
         name : name,
         email : email,
         password : hashPass
     })
 }
 const findHostEmail = async (payload) => {
-    const guest = await prisma.Guest.findOne({
+    return host = await DB.Host.findOne({
         email : payload
     })
 }

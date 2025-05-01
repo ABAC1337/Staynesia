@@ -1,9 +1,8 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const DB = require('../../db/schema')
 
 const getAllListings = async (req, res) => {
     try {
-        const listings = await prisma.listing.findMany();
+        const listings = await DB.Listing.findMany();
         res.status(200).json(listings);
     } catch (error) {
         res.json({ error: error.message });
@@ -12,7 +11,7 @@ const getAllListings = async (req, res) => {
 
 const topRatingListings10 = async (req, res) => {
     try {
-        const listings = await prisma.listing.findMany({
+        const listings = await DB.Listing.findMany({
             orderBy: {
                 rating: "asc",
             },
@@ -26,7 +25,7 @@ const topRatingListings10 = async (req, res) => {
 
 const mostAffordableListings10 = async (req, res) => {
     try {
-        const listings = await prisma.listing.findMany({
+        const listings = await DB.Listing.findMany({
             orderBy: {
                 price: "asc",
             },
@@ -45,7 +44,7 @@ const mostAffordableListings10 = async (req, res) => {
 
 const topSalesListings10 = async (req, res) => {
     try {
-        const listings = await prisma.listing.findMany({
+        const listings = await DB.Listing.findMany({
             orderBy: {
                 soldCount: "asc"
             }, 
