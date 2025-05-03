@@ -1,4 +1,4 @@
-const apiUser = require('./api/user')
+const apiUser = require('src/routes/api/user')
 const express = require('express')
 const rootRoutes = express.Router()
 
