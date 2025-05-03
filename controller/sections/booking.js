@@ -1,4 +1,4 @@
-const DB = require('src/db/schema')
+const DB = require('../../db/schema')
 
 const createBookings = async (guestId, listingId, checkIn, checkOut, totalPrice, status) => {
     return await DB.Booking.create({

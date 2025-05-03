@@ -1,4 +1,4 @@
-const DB = require('src/db/schema')
+const DB = require('../../db/schema')
 
 const createHost = async (name, email, hashPass) => {
     return await DB.Host.create({

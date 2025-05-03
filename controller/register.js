@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
-const Guest = require('src/controller/user/guest')
-const Host = require('src/controller/user/host')
+const Guest = require('./user/guest')
+const Host = require('./user/host')
 
 const payloadRegister = {
     name : req.body.name,

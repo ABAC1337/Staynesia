@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const createGuest = require('src/controller/user/guest')
+const createGuest = require('../../controller/user/guest')
 
 router.get('/api', (req, res) => {
     res.send('API Test')
