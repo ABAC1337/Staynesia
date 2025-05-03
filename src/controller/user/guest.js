@@ -1,4 +1,4 @@
-const DB = require('../../db/schema')
+const DB = require('src/db/schema')
 
 const createGuest = async (name, email, hashPass) => {
     return await DB.Guest.create({
@@ -8,7 +8,7 @@ const createGuest = async (name, email, hashPass) => {
     })
 }
 const findGuestEmail = async (payload) => {
-    return await DB.Guest.findOne({
+    return await DB.Guest.exists({
         email : payload
     })
 }
