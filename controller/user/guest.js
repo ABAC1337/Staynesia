@@ -13,6 +13,25 @@ const findGuestEmail = async (payload) => {
     })
 }
 
+const updateGuest = async (id, name, email, newPass, profilePic) => {
+    const validation = findGuestEmail(email)
+    if (validation) {
+        console.error('email exist');
+    }
+    return await DB.Guest.findByIdAndUpdate({
+        _id : id
+    },{
+        name : name,
+        email : email,
+        hashPass : newPass,
+        imageUrl : profilePic
+    })
+}
+
+const deleteGuest = async (id) => {
+    return await DB.Guest.findByIdAndDelete(id)
+}
+
 module.exports = {
     findGuestEmail,
     createGuest

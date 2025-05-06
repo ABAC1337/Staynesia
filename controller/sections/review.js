@@ -19,5 +19,17 @@ const getAllReviewByListingId = async (id) => {
     })
 }
 
+const updateReview = async (id, rating, reviews) => {
+    return await DB.Review.findByIdAndUpdate({
+        _id : id
+    },{
+        rating : rating,
+        reviews : reviews
+    })
+}
+
+const deleteReview = async (id) => {
+    return await DB.Review.findByIdAndDelete(id)
+}
 
 

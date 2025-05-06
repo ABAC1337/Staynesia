@@ -33,7 +33,9 @@ const getListingsBySales = async () => {
 }
 
 const updateSoldCount = async (id) => {
-    const totalBookings = DB.Booking.findById(id).countDocuments()
+    const totalBookings = DB.Booking.find({
+        listingId : id
+    }).countDocuments()
     console.log(totalBookings)
     return await DB.Listing.updateOne(
         { _id: id },
@@ -42,6 +44,18 @@ const updateSoldCount = async (id) => {
                 soldCount: totalBookings
             }
         })
+}
+
+const updateListings = async (id, ) => {
+    return await DB.Listing.findByIdAndUpdate({
+        _id : id
+    },{
+
+    })
+}
+
+const deleteListing = async (id) => {
+    return await DB.Listing.findByIdAndDelete(id)
 }
 
 module.exports = {};
