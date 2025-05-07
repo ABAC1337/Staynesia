@@ -15,9 +15,9 @@ const hashPass = async (x) => {
     return await bcrypt.hash(x, saltRound)
 }
 
-const isMatch = (x, y) => {
-    if (x != y) {
-        res.status(400).redirect('/register').json('Password Miss Match') 
+const isMatch = (pass, confirmPass) => {
+    if (pass != confirmPass) {
+        res.status(400).json('Password Miss Match') 
     }
     return res.status(200).json('Password Match')
 }   
@@ -30,7 +30,7 @@ const guestRegister = async() =>{
         }
         isMatch(payload.password, payload.confirmPass)
 
-        const isExist = Guest.findGuestEmail(payloadRegister.email)
+        const isExist = Guest.emailExist(payloadRegister.email)
         if(isExist){
             res.status(400).json('Account is Exist') // notification pop out
         }
@@ -43,7 +43,7 @@ const guestRegister = async() =>{
         
         return res.status(200).json('Account has been created, enjoy')
     } catch (error) {
-        res.status(400).json('')
+        res.status(400).json('error ngab')
     }
 }
 
@@ -55,7 +55,7 @@ const hostRegister = async() =>{
         }
         isMatch(payload.password, payload.confirmPass)
 
-        const isExist = Host.findGuestEmail(payloadRegister.email)
+        const isExist = Host.emailExist(payloadRegister.email)
         if(isExist){
             res.status(400).json('Account is Exist') // notification pop out
         }
@@ -65,7 +65,6 @@ const hostRegister = async() =>{
         if(!created) {
             res.status(400).json('Account was not created')
         }
-        
         return res.status(200).json('Account has been created, enjoy')
     } catch (error) {
         res.status(400).json('')

@@ -7,21 +7,20 @@ const createHost = async (name, email, hashPass) => {
         password : hashPass
     })
 }
-const findHostEmail = async (payload) => {
+
+const emailGuestExist = async (email) => {
     return await DB.Host.exists({
+        email : email
+    })
+}
+
+const findHostEmail = async (payload) => {
+    return await DB.Host.findOne({
         email : payload
     })
 }
 
-const autoUpdateReviewsRatings = async (review, rating) => {
-    
-}
-
 const updateHost = async (id, name, email, newPass, profilePic) => {
-    const validation = findGuestEmail(email)
-    if (validation) {
-        console.error('email exist');
-    }
     return await DB.Host.findByIdAndUpdate({
         _id : id
     },{
@@ -38,5 +37,6 @@ const deleteHost = async (id) => {
 
 module.exports = {
     findHostEmail,
+    emailGuestExist,
     createHost
 }
