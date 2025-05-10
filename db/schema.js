@@ -3,13 +3,23 @@ const { Schema } = mongoose;
 
 // Guest Schema
 const GuestSchema = new Schema({
-    name: String,
+    name: {
+        type : String,
+        require : true
+    },
+    username: {
+        type : String,
+        require : true
+    },
     email: {
         type: String,
+        require : true,
         unique: true,
-        sparse: true
     },
-    hashPassword: String,
+    hashPassword: {
+        type : String,
+        require : true
+    },
     imageUrl: String,
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
     reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
@@ -18,50 +28,89 @@ const GuestSchema = new Schema({
 
 // Host Schema
 const HostSchema = new Schema({
-    name: String,
+    name: {
+        type : String,
+        require : true
+    },
+    username: {
+        type : String,
+        require : true
+    },
     email: {
         type: String,
+        require : true,
         unique: true,
-        sparse: true
     },
-    hashPassword: String,
+    hashPassword: {
+        type : String,
+        require : true
+    },
     imageUrl: String,
-    ratings: Number,
-    review: Number,
     listings: [{ type: Schema.Types.ObjectId, ref: 'Listing' }]
 }, { timestamps: true });
 
 // Listing Schema
 const ListingSchema = new Schema({
-    hostId: { type: Schema.Types.ObjectId, ref: 'Host' },
-    province: String,
-    city: String,
-    category: String,
-    title: String,
+    location : {
+        province : {
+            type : String
+        },
+        city : {
+            type : String
+        },
+        require : true
+    },
+    category: {
+        type : String,
+        require : true
+    },
+    title: {
+        type : String,
+        require : true
+    },
     description: {
         type: String,
         required: true
     },
-    imgUrl: [String],
-    facility: [String],
-    maxGuest: Schema.Types.Mixed, // BigInt alternative
-    numBedroom: Number,
-    numBathroom: Number,
-    price: Schema.Types.Mixed, // BigInt alternative
-    ratingCount: Number,
-    soldCount: Number,
+    imgUrl: {
+        type : [String],
+        require : true
+    },
+    facility: {
+        type : [String],
+        require : true
+    },
+    capacity: {
+        type : Number,
+        require : true
+    }, 
+    price: {
+        type : Number,
+        require : true
+    },
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
     reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
     wishlists: [{ type: Schema.Types.ObjectId, ref: 'Wishlist' }]
 }, { timestamps: true });
 
+
+
 // Booking Schema
 const BookingSchema = new Schema({
     guestId: { type: Schema.Types.ObjectId, ref: 'Guest' },
     listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
-    checkIn: Date,
-    checkOut: Date,
-    totalPrice: Schema.Types.Mixed,
+    checkIn: {
+        type : Date,
+        require : true
+    },
+    checkOut: {
+        type : Date,
+        require : true
+    },
+    totalPrice: {
+        type : Number,
+        require : true
+    },
     status: String,
     payment: [{ type: Schema.Types.ObjectId, ref: 'Payment' }]
 }, { timestamps: true });
@@ -69,10 +118,18 @@ const BookingSchema = new Schema({
 // Payment Schema
 const PaymentSchema = new Schema({
     bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
-    paymentMethod: String,
+    paymentMethod: {
+        type : Number,
+        require : true
+    },
     paymentStatus: String,
-    amount: Schema.Types.Mixed,
-    paidAt: Date
+    amount: {
+        type : Number,
+        require : true
+    },
+    paidAt: {
+        type : Number
+    }
 }, { timestamps: true });
 
 // Review Schema
