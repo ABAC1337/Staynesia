@@ -4,21 +4,21 @@ const { Schema } = mongoose;
 // Guest Schema
 const GuestSchema = new Schema({
     name: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     username: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     email: {
         type: String,
-        require : true,
+        required: true,
         unique: true,
     },
     hashPassword: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     imageUrl: String,
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
@@ -29,21 +29,21 @@ const GuestSchema = new Schema({
 // Host Schema
 const HostSchema = new Schema({
     name: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     username: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     email: {
         type: String,
-        require : true,
+        required: true,
         unique: true,
     },
     hashPassword: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     imageUrl: String,
     listings: [{ type: Schema.Types.ObjectId, ref: 'Listing' }]
@@ -51,85 +51,85 @@ const HostSchema = new Schema({
 
 // Listing Schema
 const ListingSchema = new Schema({
-    location : {
-        province : {
-            type : String
+    location: {
+        province: {
+            type: String,
+            required: true
         },
-        city : {
-            type : String
-        },
-        require : true
+        city: {
+            type: String,
+            required: true
+        }
     },
     category: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     title: {
-        type : String,
-        require : true
+        type: String,
+        required: true
     },
     description: {
         type: String,
         required: true
     },
     imgUrl: {
-        type : [String],
-        require : true
+        type: [String],
+        required: true
     },
     facility: {
-        type : [String],
-        require : true
+        type: [String],
+        required: true
     },
     capacity: {
-        type : Number,
-        require : true
-    }, 
-    price: {
-        type : Number,
-        require : true
+        type: Number,
+        required: true
     },
+    price: {
+        type: Number,
+        required: true
+    },
+    host : {type: Schema.Types.ObjectId, ref: 'Host'},
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
     reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
     wishlists: [{ type: Schema.Types.ObjectId, ref: 'Wishlist' }]
 }, { timestamps: true });
 
-
-
 // Booking Schema
 const BookingSchema = new Schema({
-    guestId: { type: Schema.Types.ObjectId, ref: 'Guest' },
-    listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
     checkIn: {
-        type : Date,
-        require : true
+        type: Date,
+        required: true
     },
     checkOut: {
-        type : Date,
-        require : true
+        type: Date,
+        required: true
     },
     totalPrice: {
-        type : Number,
-        require : true
+        type: Number,
+        required: true
     },
-    status: String,
-    payment: [{ type: Schema.Types.ObjectId, ref: 'Payment' }]
+    statusBooking: String,
+    guestId: { type: Schema.Types.ObjectId, ref: 'Guest' },
+    listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
+    payment: { type: Schema.Types.ObjectId, ref: 'Payment' }
 }, { timestamps: true });
 
 // Payment Schema
 const PaymentSchema = new Schema({
-    bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
     paymentMethod: {
-        type : Number,
-        require : true
+        type: Number,
+        required: true
     },
     paymentStatus: String,
     amount: {
-        type : Number,
-        require : true
+        type: Number,
+        required: true
     },
     paidAt: {
-        type : Number
-    }
+        type: Number
+    },
+    bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
 }, { timestamps: true });
 
 // Review Schema
