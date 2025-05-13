@@ -1,8 +1,26 @@
-const DB = require('../../db/schema')
-const booking = require('./booking')
-const createListings = async () => {
+const DB = require('../../models/schema')
+
+const createListings = async (
+    location, 
+    category, 
+    title, 
+    description, 
+    imgUrl, 
+    facility, 
+    capacity, 
+    price, 
+    host
+    ) => {
     return await DB.Listing.create({
-        // sek bentar lagi malas
+        location: location,
+        category: category,
+        title: title,
+        description: description,
+        imgUrl: imgUrl,
+        facility: facility,
+        capacity: capacity,
+        price: price,
+        host: host
     })
 }
 
@@ -10,10 +28,26 @@ const getListingsById = async (id) => {
     return await DB.Listing.findById(id)
 }
 
-const getListingsByPagination = async () => {
-    const page = req.query || 1
-    const limit = 16 
-    return await DB.Listing.find({}).skip((page - 1) * limit).limit(limit)
+const getListingsByPagination = async (page, limit, query, sortBy) => {
+    console.log(page, limit, query, sortBy);
+    const skip = (page - 1) * limit
+
+    // Query Logic
+    const listing = await DB.Listing.find(query)
+        .sort(sortBy)
+        .skip(skip)
+        .limit(limit)
+    
+    // Pagination Logic
+    const total = await DB.Listing.countDocuments(query)
+    const totalPages = Math.ceil(total / limit)
+
+    return res.status(200).json({
+        data: listing,
+        currentPage: page,
+        totalPages: totalPages,
+        totalItems: total
+    })
 }
 
 const getListingsByRatings = async () => {
@@ -34,7 +68,7 @@ const getListingsBySales = async () => {
     })
 }
 
-const updateSoldCount = async (id) => {
+const updateSoldCount = async (id,) => {
     const totalBookings = DB.Booking.find({
         listingId : id
     }).countDocuments()
@@ -48,11 +82,30 @@ const updateSoldCount = async (id) => {
         })
 }
 
-const updateListings = async (id, ) => {
+const updateListings = async (
+    id, 
+    location, 
+    category, 
+    title, 
+    description, 
+    imgUrl, 
+    facility, 
+    capacity, 
+    price, 
+    host
+    ) => {
     return await DB.Listing.findByIdAndUpdate({
         _id : id
     },{
-
+        location: location,
+        category: category,
+        title: title,
+        description: description,
+        imgUrl: imgUrl,
+        facility: facility,
+        capacity: capacity,
+        price: price,
+        host: host
     })
 }
 
