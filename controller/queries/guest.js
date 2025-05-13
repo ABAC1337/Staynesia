@@ -22,16 +22,14 @@ const findGuestById = async (id) => {
     return await DB.Guest.findById(id)
 }
 
-const updateGuest = async (id, name, email, photo) => {
+const updateGuest = async (id, query) => {
+    console.log(query);
+    
     return await DB.Guest.findByIdAndUpdate({
         _id: id
-    }, {
-        $or: [
-            { name: !!name },
-            { email: !!email },
-            { imageUrl: !!photo }
-        ]
-    })
+    }, 
+        query
+    )
 }
 
 const updateGuestPassword = async (id, password) => {
