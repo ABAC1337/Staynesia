@@ -8,7 +8,7 @@ const PORT = 4000
 
 app.use(express.json());
 
-app.use(router.rootRoutes)
+app.use('/api',router.rootRoutes)
 
 
 db.connect().then(() => {
