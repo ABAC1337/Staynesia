@@ -18,26 +18,24 @@ const findHostByLogin = async (username, email) => {
     })
 }
 
+const findHostById = async (id) => {
+    return await DB.Host.findById(id)
+}
+
 const emailExist = async (email) => {
     return await DB.Host.exists({
         email : email
     })
 }
 
-const updateHostName = async (id, name) => {
-    return await DB.Host.findByIdAndUpdate({
-        _id : id
-    },{
-        name : name,
-    })
-}
-
-const updateHostPassword = async (id, password) => {
-    return await DB.Host.findByIdAndUpdate({
-        _id : id
-    },{
-        hashPassword : password,
-    })
+const updateHost= async (id, query) => {
+    console.log(query);
+    
+    return await DB.Guest.findByIdAndUpdate({
+        _id: id
+    }, 
+        query
+    )
 }
 
 const deleteHost = async (id) => {
@@ -49,8 +47,8 @@ const deleteHost = async (id) => {
 module.exports = {
     createHost,
     findHostByLogin,
+    findHostById,
     emailExist,
-    updateHostName,
-    updateHostPassword,
+    updateHost,
     deleteHost
 }
