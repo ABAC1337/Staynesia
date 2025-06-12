@@ -1,15 +1,15 @@
-import DB from '../../../models/schema'
+const DB = require('../../../models/schema')
 
-const createGuest = async (query) => {
-    return await DB.Guest.create(query);
+const createGuest = async (data) => {
+    return await DB.Guest.create(data);
 }
 
-const findGuest = async (query) => {
-    return await DB.Guest.find(query);
+const findGuest = async (data) => {
+    return await DB.Guest.find(data);
 }
 
-const updateGuest = async (query) => {
-    return await DB.Guest.findByIdAndUpdate(query);
+const updateGuest = async (data) => {
+    return await DB.Guest.findByIdAndUpdate(data);
 }
 
 const deleteGuest = async (id) => {
@@ -18,9 +18,7 @@ const deleteGuest = async (id) => {
 
 module.exports = {
     createGuest, 
-    findGuestById, 
     findGuest, 
-    findGuestByPopulate,
     updateGuest, 
     deleteGuest
 }

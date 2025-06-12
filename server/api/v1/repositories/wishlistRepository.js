@@ -1,4 +1,4 @@
-import DB from '../../../models/schema'
+const DB = require('../../../models/schema')
 
 const createWishlist = async (query) => {
     return await DB.Wishlist.create(query)

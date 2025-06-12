@@ -1,4 +1,4 @@
-import DB from '../../../models/schema'
+const DB = require('../../../models/schema')
 
 const createPayment = async (query) => {
     return await DB.Payment.create(query);

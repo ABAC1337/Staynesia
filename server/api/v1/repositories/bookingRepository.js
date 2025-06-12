@@ -1,4 +1,4 @@
-import DB from '../../../models/schema'
+const DB = require('../../../models/schema')
 
 const createBooking = async (query) => {
     return await DB.Booking.create(query);
@@ -10,10 +10,6 @@ const findBookingById = async (id) => {
 
 const findBooking = async (query) => {
     return await DB.Booking.find(query);
-}
-
-const findBookingByPopulate = async (query, option) => {
-    return await DB.Booking.find(query).populate(option)
 }
 
 const updateBooking = async (query) => {

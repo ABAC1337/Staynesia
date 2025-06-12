@@ -1,4 +1,4 @@
-import DB from '../../../models/schema'
+const DB = require('../../../models/schema')
 
 const createReview = async (query) => {
     return await DB.Review.create(query)
