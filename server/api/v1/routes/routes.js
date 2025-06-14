@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const auth = require('./auth')
-const listing = require('./listing')
+const auth = require('./auth/index')
+// const private = require('./private')
+// const public = require('./public')
 
 router.use('/auth', auth)
-router.use('/listing', listing)
+
 
 module.exports = router;

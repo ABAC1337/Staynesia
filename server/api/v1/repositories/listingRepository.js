@@ -1,10 +1,10 @@
 const DB = require('../../../models/schema')
 
 const createListing = async (query) => {
-    return await DB.Listing.create(query);
+    return await DB.Listing.create(query, {new: true, runValidation: true});
 }
 
-const getListingById = async (id) => {
+const findListingById = async (id) => {
     return await DB.Listing.aggregate([
         { $match: { _id: id } },
         {
@@ -98,7 +98,7 @@ const getListingById = async (id) => {
     ]);
 }
 
-const getListing = async (queryObj) => {
+const findListing = async (queryObj) => {
     const { filter, sort, skip, limit } = queryObj
     return await DB.Listing.aggregate([
         { $match: filter },
@@ -135,8 +135,8 @@ const getListing = async (queryObj) => {
     ]);
 }
 
-const updateListing = async (query) => {
-    return await DB.Listing.findByIdAndUpdate(query)
+const updateListing = async (id, query) => {
+    return await DB.Listing.findByIdAndUpdate(id, query, {runValidation: true})
 }
 
 const deleteListing = async (id) => {
@@ -145,8 +145,8 @@ const deleteListing = async (id) => {
 
 module.exports = {
     createListing,
-    getListingById,
-    getListing,
+    findListingById,
+    findListing,
     updateListing,
     deleteListing
 }

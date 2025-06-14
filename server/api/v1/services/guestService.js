@@ -31,6 +31,10 @@ const loginGuest = async (data) => {
     const payloadToken = { name: guest[0].name, username: guest[0].username, email: guest[0].email }
     return jwt.generateToken(payloadToken)
 }
+
+const updateProfile = async (data) => {
+    
+}
 module.exports = {
     createGuest,
     loginGuest
