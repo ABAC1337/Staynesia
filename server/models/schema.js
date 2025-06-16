@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-// Guest Schema
-const GuestSchema = new Schema({
+// User Schema
+const UserSchema = new Schema({
     name: {
         type: String,
         required: [true, "Name is required field"]
@@ -24,36 +24,18 @@ const GuestSchema = new Schema({
     imageUrl: {
         type: String
     },
+    role: {
+        type: String,
+        enum: {
+            values: ["Guest", "Host"],
+            message: "User role doesn't exist"
+        }
+    },
+    listings: [{ type: Schema.Types.ObjectId, ref: 'Listing' }],
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
     reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
     wishlists: [{ type: Schema.Types.ObjectId, ref: 'Wishlist' }],
     payments: [{ type: Schema.Types.ObjectId, ref: 'Payment' }]
-}, { timestamps: true });
-
-// Host Schema
-const HostSchema = new Schema({
-    name: {
-        type: String,
-        required: [true, "Name is required field"]
-    },
-    username: {
-        type: String,
-        required: [true, "Username is required field"],
-        unique: true
-    },
-    email: {
-        type: String,
-        required: [true, "Email is required field"],
-        unique: true,
-    },
-    hashPassword: {
-        type: String,
-        required: [true, "Password is required field"]
-    },
-    imageUrl: {
-        type: String
-    },
-    listings: [{ type: Schema.Types.ObjectId, ref: 'Listing' }]
 }, { timestamps: true });
 
 // Listing Schema
@@ -118,7 +100,11 @@ const ListingSchema = new Schema({
         type: Number,
         required: [true, "Price is required field!"]
     },
-    host: { type: Schema.Types.ObjectId, ref: 'Host' },
+    hostId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'User',
+        required: [true, "Host is required"] 
+    },
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
     reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
     wishlists: [{ type: Schema.Types.ObjectId, ref: 'Wishlist' }]
@@ -150,7 +136,7 @@ const BookingSchema = new Schema({
             message: "This status does not exist"
         }
     },
-    guestId: { type: Schema.Types.ObjectId, ref: 'Guest' },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
     payment: { type: Schema.Types.ObjectId, ref: 'Payment' }
 }, { timestamps: true });
@@ -171,18 +157,19 @@ const PaymentSchema = new Schema({
     },
     amount: {
         type: Number,
+        min: [0, 'Amount must be greater than or equal 0'],
         required: [true, "Amount is required field!"]
     },
     paidAt: {
         type: Number
     },
     bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
-    guestId: { type: Schema.Types.ObjectId, ref: 'Guest' }
+    userId: { type: Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 // Review Schema
 const ReviewSchema = new Schema({
-    guestId: { type: Schema.Types.ObjectId, ref: 'Guest' },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
     rating: {
         type: Number,
@@ -194,14 +181,13 @@ const ReviewSchema = new Schema({
 
 // Wishlist Schema
 const WishlistSchema = new Schema({
-    guestId: { type: Schema.Types.ObjectId, ref: 'Guest' },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     listingId: { type: Schema.Types.ObjectId, ref: 'Listing' }
 }, { timestamps: true });
 
 // Export models
 module.exports = {
-    Guest: mongoose.model('Guest', GuestSchema),
-    Host: mongoose.model('Host', HostSchema),
+    User: mongoose.model('User', UserSchema),
     Listing: mongoose.model('Listing', ListingSchema),
     Booking: mongoose.model('Booking', BookingSchema),
     Payment: mongoose.model('Payment', PaymentSchema),
