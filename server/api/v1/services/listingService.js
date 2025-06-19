@@ -11,7 +11,6 @@ const createListing = async (data, host) => {
         location, category, title, description, rules, imgUrl,
         facility, capacity, price, host
     }
-    console.log(queryObj);
     return await listingRepo.createListing(queryObj)
 }
 
@@ -39,11 +38,15 @@ const deleteListing = async (id) => {
 
 const getPagination = async (params) => {
     const { province, city, category, facility, sort, page } = params;
+    const location = { province, city }
     const queryObj = {}
+    const filterObj = {}
 
-    if (province || city || category || facility)
-        queryObj.filter = { province, city, category, facility }
+    if (location) filterObj.location = location
+    if (category) filterObj.category = category
+    if (facility) filterObj.facility = facility
 
+    queryObj.filterObj
 
     if (sort) {
         const sortBy = sort.split(',').join(' ')
@@ -52,10 +55,9 @@ const getPagination = async (params) => {
         queryObj.sort = '-createdAt'
 
     // Pagination Logic
-    let currentPage = page
-    queryObj.page = currentPage * 1 || 1;
+    queryObj.page = page * 1 || 1;
     queryObj.limit = 16;
-    queryObj.skip = (currentPage - 1) * limit;
+    queryObj.skip = (page - 1) * limit;
 
     return await listingRepo.findListing(queryObj)
 }
