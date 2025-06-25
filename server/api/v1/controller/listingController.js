@@ -1,4 +1,5 @@
 const listingService = require('../services/listingService')
+const bookingService = require('../services/bookingService')
 const asyncHandler = require('../../../utils/asyncHandler')
 
 const createListing = asyncHandler(async (req, res, next) => {
@@ -23,19 +24,28 @@ const deleteListing = asyncHandler(async (req, res, next) => {
 })
 
 const pagination = asyncHandler(async (req, res, next) => { 
-    const listing = await listingService.getAllListing(req.params)
+    const listing = await listingService.getPagination(req.query)
     return res.status(200).json({
-        status: 'success',
+        message: "Success",
+        length: listing.length,
         data: listing
     })
 })
 
 const getListingId = asyncHandler(async (req, res, next) => {
     const listing = await listingService.getListingId(req.params.id)
+    const booking = await bookingService.getBookedDates(req.params.id)
+    return res.status(200).json({
+        message: "Success",
+        data: listing,
+        booked: booking
+    })
 })
 
 module.exports = {
     createListing,
     updateListing,
-    deleteListing
+    deleteListing,
+    pagination,
+    getListingId
 }

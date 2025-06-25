@@ -25,6 +25,6 @@ const deleteReview = asyncHandler(async (req, res, next) => {
 module.exports = {
     createReview,
     updateReview,
-    deleteReview
+    deleteReview,
 }
 
