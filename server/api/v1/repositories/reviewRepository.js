@@ -1,21 +1,40 @@
 const DB = require('../../../models/schema')
 
-const createReview = async (query) => {
-    return await DB.Review.create(query)
+const createReview = async (data) => {
+    return await DB.Review.create(data)
 }
 
-const updateReview = async (query) => {
-    return await DB.Review.findByIdAndUpdate(query)
+const updateReview = async (id, data) => {
+    return await DB.Review.findByIdAndUpdate(id, data)
 }
 
 const deleteReview = async (id) => {
     return await DB.Review.findByIdAndDelete(id)
 }
 
+const calculationReview = async (id) => {
+    return await DB.Review.aggregate([
+        { $match: { listingId: new DB.mongoose.Types.ObjectId(id) } },
+        {
+            $group: {
+                _id: "$listingId",
+                rating: { $avg: '$rating' },
+                numRating: { $sum: 1 }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                rating: 1,
+                numRating: 1
+            }
+        }
+    ])
+}
+
 module.exports = {
     createReview,
-    findReviewById,
-    findReview,
     updateReview,
-    deleteReview
+    deleteReview,
+    calculationReview
 }

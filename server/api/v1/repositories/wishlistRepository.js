@@ -1,7 +1,7 @@
 const DB = require('../../../models/schema')
 
-const createWishlist = async (query) => {
-    return await DB.Wishlist.create(query)
+const createWishlist = async (data) => {
+    return await DB.Wishlist.create(data)
 }
 
 const deleteWishlist = async (id) => {
@@ -10,6 +10,5 @@ const deleteWishlist = async (id) => {
 
 module.exports = {
     createWishlist,
-    findWishlist,
     deleteWishlist
 }

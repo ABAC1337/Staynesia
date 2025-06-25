@@ -1,19 +1,19 @@
 const DB = require('../../../models/schema')
 
-const createBooking = async (query) => {
-    return await DB.Booking.create(query);
+const createBooking = async (data) => {
+    return await DB.Booking.create(data);
 }
 
 const findBookingById = async (id) => {
     return await DB.Booking.findById(id);
 }
 
-const findBooking = async (query) => {
-    return await DB.Booking.find(query);
+const findBooking = async (data) => {
+    return await DB.Booking.find(data);
 }
 
-const updateBooking = async (query) => {
-    return await DB.Booking.findByIdAndUpdate(query);
+const updateBooking = async (id, data) => {
+    return await DB.Booking.findByIdAndUpdate(id, data);
 }
 
 const deleteBooking = async (id) => {
@@ -24,7 +24,6 @@ module.exports = {
     createBooking,
     findBookingById,
     findBooking,
-    findBookingByPopulate,
     updateBooking,
     deleteBooking
 }
