@@ -1,20 +1,31 @@
 const asyncHandler = require('../../../utils/asyncHandler')
 const ErrorHandler = require('../../../utils/errorHandler')
-const jwt = require('../../../utils/jwt')
-const errorHandler = require('./errorHandler')
+const jwtUtils = require('../../../utils/jwt')
 
 const authToken = asyncHandler(async (req, res, next) => {
     const authHeader = req.header['Authorization']
     console.log(authHeader);
-    
+
     const getToken = authHeader && authHeader.split(' ')[1]
     console.log(getToken);
-    
+
     if (getToken == null) throw new ErrorHandler('Failed to get token', 403)
-    
-    const decode = jwt.verifyToken(getToken, process.env.JWT_SECRET)
-    if (!decode) throw new errorHandler('Failed to authenticate', 403)
+    const decoded = jwtUtils.verifyToken(getToken, process.env.JWT_SECRET)
+    if (!decoded) throw ErrorHandler('Unauthorized', 403)
+    req.user = decoded
     next()
 })
 
-module.exports = authToken
+const authRole = (...allowedRoles) => {
+    return asyncHandler(async (req, res, next) => {
+        const role = req.user?.role
+
+        if (!role || !allowedRoles.includes(role)) {
+            throw new ErrorHandler('Unauthorized', 403)
+        }
+
+        next()
+    });
+};
+
+module.exports = { authToken, authRole }

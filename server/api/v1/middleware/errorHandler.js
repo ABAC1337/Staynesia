@@ -1,35 +1,5 @@
 const ErrorHandler = require('../../../utils/errorHandler')
 
-const devErrors = (res, error) => {
-    res.status(error.statusCode).json({
-        status: error.statusCode,
-        message: error.message,
-        stackTrace: error.stack,
-        error: error
-    });
-}
-
-const castErrorHandler = (err) => {
-    const msg = `Invalid value for ${err.path}: ${err.value}!`
-    return new CustomError(msg, 400);
-}
-
-const duplicateKeyErrorHandler = (err) => {
-    const name = err.keyValue.name;
-    const msg = `There is already a movie with name ${name}. Please use another name!`;
-
-    return new CustomError(msg, 400);
-}
-
-const validationErrorHandler = (err) => {
-    const errors = Object.values(err.errors).map(val => val.message);
-    const errorMessages = errors.join('. ');
-    const msg = `Invalid input data: ${errorMessages}`;
-
-    return new CustomError(msg, 400);
-}
-
-
 module.exports = (error, req, res, next) => {
     let err = { ...error };
     err.message = error.message;
