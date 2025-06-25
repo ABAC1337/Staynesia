@@ -27,9 +27,10 @@ const UserSchema = new Schema({
     role: {
         type: String,
         enum: {
-            values: ["Guest", "Host"],
+            values: ["guest", "host"],
             message: "User role doesn't exist"
-        }
+        },
+        lowercase: true
     },
     listings: [{ type: Schema.Types.ObjectId, ref: 'Listing' }],
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
@@ -43,19 +44,23 @@ const ListingSchema = new Schema({
     location: {
         province: {
             type: String,
+            lowercase: true,
             required: [true, "Province is required field!"]
         },
         city: {
             type: String,
+            lowercase: true,
             required: [true, "City is required field!"]
         },
         address: {
             type: String,
+            lowercase: true,
             required: [true, "Address is required field!"]
         }
     },
     category: {
         type: String,
+        lowercase: true,
         required: [true, "Category is required field!"]
     },
     title: {
@@ -90,6 +95,7 @@ const ListingSchema = new Schema({
     },
     facility: {
         type: [String],
+        lowercase: true,
         required: [true, "Facility is required field!"]
     },
     capacity: {
@@ -98,22 +104,36 @@ const ListingSchema = new Schema({
     },
     price: {
         type: Number,
+        min: [0, "Price must be above 0"],
         required: [true, "Price is required field!"]
     },
-    hostId: { 
-        type: Schema.Types.ObjectId, 
+    hostId: {
+        type: Schema.Types.ObjectId,
         ref: 'User',
-        required: [true, "Host is required"] 
+        required: [true, "Host is required"]
+    },
+    rating: {
+        type: Number,
+        min: [1, "Rating must be 1.0 or above"],
+        max: [5, "Rating must be 5.0 or below"]
+    },
+    numRating: {
+        type: Number,
+        min: [0, "Number of review must be above 0"]
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     },
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
-    reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
-    wishlists: [{ type: Schema.Types.ObjectId, ref: 'Wishlist' }]
+    reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }]
 }, { timestamps: true });
 
 // Booking Schema
 const BookingSchema = new Schema({
     checkIn: {
         type: Date,
+        min: [Date.now(), "Date invalid"],
         required: [true, "Check in is required field!"]
     },
     checkOut: {
@@ -122,36 +142,40 @@ const BookingSchema = new Schema({
     },
     numGuest: {
         type: Number,
+        min: [1, "Number of review must be above 0"],
         required: [true, "Number of guest is required field!"]
     },
     totalPrice: {
         type: Number,
+        min: [0, "Number of review must be above 0"],
         required: [true, "Total price is required field!"]
     },
     statusBooking: {
         type: String,
-        default: "Pending",
+        default: "pending",
+        lowercase: true,
         enum: {
-            values: ["Pending", "Confirmed", "Succeeded"],
+            values: ["pending", "confirmed", "success"],
             message: "This status does not exist"
         }
     },
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
     listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
-    payment: { type: Schema.Types.ObjectId, ref: 'Payment' }
+    paymentId: { type: Schema.Types.ObjectId, ref: 'Payment' }
 }, { timestamps: true });
 
 // Payment Schema
 const PaymentSchema = new Schema({
     paymentMethod: {
-        type: Number,
+        type: String,
         required: [true, "Payment method is required field!"]
     },
     paymentStatus: {
         type: String,
-        default: "Pending",
+        default: "success",
+        lowercase: true,
         enum: {
-            values: ["Pending", "Success", "Canceled"],
+            values: ["pending", "success", "canceled"],
             message: "This status does not exist"
         }
     },
@@ -161,7 +185,7 @@ const PaymentSchema = new Schema({
         required: [true, "Amount is required field!"]
     },
     paidAt: {
-        type: Number
+        type: Date
     },
     bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
     userId: { type: Schema.Types.ObjectId, ref: 'User' }
@@ -176,7 +200,10 @@ const ReviewSchema = new Schema({
         min: [1, "Rating must be 1.0 or above"],
         max: [5, "Rating must be 5.0 or below"]
     },
-    reviewText: String
+    reviewText: {
+        type: String,
+        maxlength: [100, "Review must be below 100 characters"]
+    }
 }, { timestamps: true });
 
 // Wishlist Schema
@@ -192,5 +219,6 @@ module.exports = {
     Booking: mongoose.model('Booking', BookingSchema),
     Payment: mongoose.model('Payment', PaymentSchema),
     Review: mongoose.model('Review', ReviewSchema),
-    Wishlist: mongoose.model('Wishlist', WishlistSchema)
+    Wishlist: mongoose.model('Wishlist', WishlistSchema),
+    mongoose
 };
