@@ -7,10 +7,7 @@ const createWishlist = async (data) => {
     if (!data) throw new ErrorHandler('Data Not Found', 404)
     const wishlist = await wishlistRepo.createWishlist(data)
     if (!wishlist) throw new ErrorHandler('Failed to create wishlist', 400)
-    await Promise.all([
-        listingRepo.updateListing(wishlist.listingId, {$addToSet: {wishlists: wishlist._id}}),
-        userRepo.updateUser(wishlist.userId, {$addToSet: {wishlists: wishlist._id}})
-    ])
+    await userRepo.updateUser(wishlist.userId, {$addToSet: {wishlists: wishlist._id}})
     return wishlist
 }
 
