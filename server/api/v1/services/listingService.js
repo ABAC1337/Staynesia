@@ -2,13 +2,17 @@ const listingRepo = require('../repositories/listingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 
-const createListing = async (data) => {
-    if (!data) throw new ErrorHandler('Value not found', 404)
-    const hostId = "685512655a9d61705dcbfabe"
+const createListing = async (id, data) => {
+    if (!data) 
+        throw new ErrorHandler('Value not found', 404)
+    if (!id)
+        throw new ErrorHandler('Host not found', 404)
+
     const { province, city, address, category, title, description, checkIn, checkOut,
         nightTime, additional, imgUrl, facility, capacity, price } = data
     const location = { province, city, address }
     const rules = { checkIn, checkOut, nightTime, additional }
+    const hostId = id
     const queryObj = {
         location, category, title, description, rules, imgUrl,
         facility, capacity, price, hostId
@@ -20,7 +24,8 @@ const createListing = async (data) => {
 }
 
 const updateListing = async (id, data) => {
-    if (!id) throw new ErrorHandler('id not found', 404)
+    if (!id) 
+        throw new ErrorHandler('Listing not found', 404)
     const { province, city, address, category, title, description, checkIn, checkOut,
         nightTime, additional, imgUrl, facility, capacity, price } = data
     const location = { province, city, address }
@@ -35,7 +40,8 @@ const updateListing = async (id, data) => {
 }
 
 const deleteListing = async (id) => {
-    if (!id) throw new ErrorHandler('id not found', 404)
+    if (!id) 
+        throw new ErrorHandler('Listing not found', 404)
     const listing = await listingRepo.deleteListing(id)
     if (!listing) throw new ErrorHandler('Listing not found', 404)
     return listing
@@ -68,9 +74,7 @@ const getPagination = async (params) => {
     const currentPage = parseInt(page) * 1 || 1;
     optionsObj.limit = 16
     optionsObj.skip = (currentPage - 1) * optionsObj.limit;
-    optionsObj.select = { 
-        select: 'title category location.city location.province price rating numRating' 
-    }
+    optionsObj.select = 'title category location.city location.province price rating numRating' 
     const queryObj = {
         filterObj: filterObj,
         optionsObj: optionsObj
@@ -81,7 +85,8 @@ const getPagination = async (params) => {
 }
 
 const getListingId = async (id) => {
-    if (!id) throw new ErrorHandler('id not found', 404)
+    if (!id) 
+        throw new ErrorHandler('Listing not found', 404)
     const optionsObj = {
         populate: [
             {
