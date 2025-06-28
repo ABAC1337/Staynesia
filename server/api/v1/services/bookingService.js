@@ -1,24 +1,47 @@
 const bookingRepo = require('../repositories/bookingRepository')
 const listingRepo = require('../repositories/listingRepository')
+const dateConverter = require('../../../utils/dateConverter')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 
-const createBooking = async (data) => {
-    if (!data) throw new ErrorHandler('Value not found', 404)
-    if (new Date(data.checkIn) >= new Date(data.checkOut))
+const createBooking = async (id, data) => {
+    if (!data)
+        throw new ErrorHandler('Value not found', 404)
+    const { checkIn, checkOut, numGuest, listingId } = data
+
+    const checkInDate = dateConverter(checkIn)
+    const checkOutDate = dateConverter(checkOut)
+    console.log(checkInDate, checkOutDate);
+    
+    if (checkInDate >= checkOutDate)
         throw new ErrorHandler('Invalid Date', 400)
-    const bookedDates = await getBookedDates(data.listingId)    
+
+    const bookedDates = await getBookedDates(data.listingId)
     const available = isBookingAvailable(bookedDates, data.checkIn, data.checkOut)
-    if (!available) throw new ErrorHandler('Cannot book due to booked by someone', 400)
-    if (data.totalPrice < 0)
+    if (!available)
+        throw new ErrorHandler('Cannot book due to booked by someone', 400)
+
+    const listing = await listingRepo.findOneListing({_id: data.listingId})
+    const durationMs = checkOutDate - checkInDate
+    const convertDuration = durationMs / (1000 * 60 * 60 * 24)
+    const totalPrice = listing.price * convertDuration
+    if (totalPrice < 0)
         throw new ErrorHandler('Invalid Value, value was minus', 400)
-    const booking = await bookingRepo.createBooking(data)
-    if (!booking) throw new ErrorHandler('Failed to create booking', 400)
+
+    const dataBooking = {
+        checkIn: checkInDate, 
+        checkOut: checkOutDate,
+        numGuest: numGuest, 
+        totalPrice: totalPrice,
+        userId: id, 
+        listingId: listingId
+    }
+    const booking = await bookingRepo.createBooking(dataBooking)
+
     await Promise.all([
         listingRepo.updateListing(booking.listingId, { $addToSet: { bookings: booking._id } }),
         userRepo.updateUser(booking.userId, { $addToSet: { bookings: booking._id } })
     ]);
-
     return booking
 }
 
@@ -34,9 +57,9 @@ const deleteBooking = async (id) => {
 }
 
 function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
-    const startDate = new Date(newCheckIn);
-    const endDate = new Date(newCheckOut);
-    let currentDate = new Date(startDate);
+    const startDate = dateConverter(newCheckIn);
+    const endDate = dateConverter(newCheckOut);
+    let currentDate = startDate
     while (currentDate <= endDate) {
         const dateStr = currentDate.toISOString().split('T')[0];
         if (bookedDates.includes(dateStr)) return false;
@@ -47,12 +70,10 @@ function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
 
 const getBookedDates = async (listingId) => {
     const booking = await bookingRepo.findBooking({ listingId: listingId });
-    console.log(booking);
-
     const result = [];
     for (const bd of booking) {
-        let start = new Date(bd.checkIn);
-        const end = new Date(bd.checkOut);
+        let start = dateConverter(bd.checkIn);
+        const end = dateConverter(bd.checkOut);
         if (isNaN(start) || isNaN(end))
             continue;
         while (start <= end) {

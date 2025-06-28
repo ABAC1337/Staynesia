@@ -2,14 +2,14 @@ const asyncHandler = require('../../../utils/asyncHandler')
 const bookingService = require('../services/bookingService')
 
 const createBooking = asyncHandler(async (req, res, next) => {
-    await bookingService.createBooking(req.body)
+    await bookingService.createBooking(req.user.id, req.body)
     return res.status(201).json({
         message: 'Booking Created'
     })
 })
 
 const updateBooking = asyncHandler(async (req, res, next) => {
-    await bookingService.updateBooking(req.paras.id, req.body)
+    await bookingService.updateBooking(req.params.id, req.body)
     return res.status(200).json({
         message: "Booking Updated"
     })
