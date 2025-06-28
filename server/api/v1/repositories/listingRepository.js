@@ -4,8 +4,12 @@ const createListing = async (data) => {
     return await DB.Listing.create(data);
 }
 
+const findOneListing = async (data) => {
+    return await DB.Listing.findOne(data)
+}
+
 const findListing = async (queryObj) => {
-    const { filterObj, optionsObj } = queryObj;
+    const { filterObj = {}, optionsObj = {} } = queryObj;
     const { populate, select, sort, skip, limit } = optionsObj
     let query = DB.Listing.find(filterObj)
     if (populate)
@@ -36,6 +40,7 @@ const deleteListing = async (id) => {
 
 module.exports = {
     createListing,
+    findOneListing,
     findListing,
     updateListing,
     deleteListing
