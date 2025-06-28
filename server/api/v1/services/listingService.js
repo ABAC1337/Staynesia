@@ -87,6 +87,7 @@ const getPagination = async (params) => {
 const getListingId = async (id) => {
     if (!id) 
         throw new ErrorHandler('Listing not found', 404)
+    const filterObj = {}
     const optionsObj = {
         populate: [
             {
@@ -104,7 +105,11 @@ const getListingId = async (id) => {
         ],
         select: '-createdAt -updatedAt -wishlists -bookings'
     }
-    const listing = await listingRepo.findListing({ _id: id }, optionsObj)
+    const queryObj = {
+        filterObj: filterObj,
+        optionsObj: optionsObj
+    }
+    const listing = await listingRepo.findListing(queryObj)
     if (!listing) throw new ErrorHandler('Listing not found', 404)
     return listing
 }
