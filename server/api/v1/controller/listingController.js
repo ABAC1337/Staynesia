@@ -3,12 +3,12 @@ const bookingService = require("../services/bookingService");
 const asyncHandler = require("../../../utils/asyncHandler");
 
 const createListing = asyncHandler(async (req, res, next) => {
+
   const urlImg = req.files.map((item) => item.filename);
   const parse = JSON.parse(req.body.form);
   const hostId = req.user.id;
-  console.log(parse);
-  
-  const listing = await listingService.createListing(parse, urlImg, hostId);
+
+  await listingService.createListing(parse, urlImg, hostId);
 
   return res.status(201).json({
     message: "Listing Created",
@@ -16,21 +16,22 @@ const createListing = asyncHandler(async (req, res, next) => {
 });
 
 const updateListing = asyncHandler(async (req, res, next) => {
-  const listing = await listingService.updateListing(req.params.id, req.body);
+ await listingService.updateListing(req.params.id, req.body);
   return res.status(200).json({
     message: "Listing Updated",
   });
 });
 
 const deleteListing = asyncHandler(async (req, res, next) => {
-  const listing = await listingService.deleteListing(req.params.id);
+   await listingService.deleteListing(req.params.id);
   return res.status(200).json({
     message: "Listing Deleted",
   });
 });
 
+
 const pagination = asyncHandler(async (req, res, next) => {
-  const listing = await listingService.getPagination(req.query);
+   await listingService.getPagination(req.query);
   return res.status(200).json({
     message: "Success",
     length: listing.length,

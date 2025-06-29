@@ -4,7 +4,7 @@ const userController = require('../../../controller/userController')
 
 router.route('/')
         .post(userController.resetPassword)
-        .patch(userController.resetPassword)
+        .patch(userController.updateProfile)
         .delete(userController.deleteAccount)
 
 module.exports = router

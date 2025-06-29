@@ -2,12 +2,12 @@ const listingRepo = require('../repositories/listingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 
+
 const createListing = async (data,urlImg,hostId) => {
     if (!data) 
         throw new ErrorHandler('Value not found', 404)
     if (!hostId)
         throw new ErrorHandler('Host not found', 404)
-
     const { province, city, address, category, title, description, checkIn, checkOut,
         nightTime, additional, facility, capacity, price } = data
     const location = { province, city, address }
