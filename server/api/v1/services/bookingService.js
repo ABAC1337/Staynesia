@@ -4,6 +4,7 @@ const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 
 const createBooking = async (data) => {
+    console.log(data)
     if (!data) throw new ErrorHandler('Value not found', 404)
     if (new Date(data.checkIn) >= new Date(data.checkOut))
         throw new ErrorHandler('Invalid Date', 400)
@@ -47,7 +48,6 @@ function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
 
 const getBookedDates = async (listingId) => {
     const booking = await bookingRepo.findBooking({ listingId: listingId });
-    console.log(booking);
 
     const result = [];
     for (const bd of booking) {

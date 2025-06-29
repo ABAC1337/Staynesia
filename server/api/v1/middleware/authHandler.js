@@ -1,31 +1,29 @@
-const asyncHandler = require('../../../utils/asyncHandler')
-const ErrorHandler = require('../../../utils/errorHandler')
-const jwtUtils = require('../../../utils/jwt')
+const asyncHandler = require("../../../utils/asyncHandler");
+const ErrorHandler = require("../../../utils/errorHandler");
+const jwtUtils = require("../../../utils/jwt");
 
 const authToken = asyncHandler(async (req, res, next) => {
-    const authHeader = req.header['Authorization']
-    console.log(authHeader);
+  const authHeader = req.headers["authorization"];
 
-    const getToken = authHeader && authHeader.split(' ')[1]
-    console.log(getToken);
+  const getToken = authHeader && authHeader.split(" ")[1];
 
-    if (getToken == null) throw new ErrorHandler('Failed to get token', 403)
-    const decoded = jwtUtils.verifyToken(getToken, process.env.JWT_SECRET)
-    if (!decoded) throw ErrorHandler('Unauthorized', 403)
-    req.user = decoded
-    next()
-})
+  if (getToken == null) throw new ErrorHandler("Failed to get token", 403);
+  const decoded = jwtUtils.verifyToken(getToken, process.env.JWT_SECRET);
+  if (!decoded) throw ErrorHandler("Unauthorized", 403);
+  req.user = decoded;
+  next();
+});
 
 const authRole = (...allowedRoles) => {
-    return asyncHandler(async (req, res, next) => {
-        const role = req.user?.role
+  return asyncHandler(async (req, res, next) => {
+    const role = req.user?.role;
 
-        if (!role || !allowedRoles.includes(role)) {
-            throw new ErrorHandler('Unauthorized', 403)
-        }
+    if (!role || !allowedRoles.includes(role)) {
+      throw new ErrorHandler("Unauthorized", 403);
+    }
 
-        next()
-    });
+    next();
+  });
 };
 
-module.exports = { authToken, authRole }
+module.exports = { authToken, authRole };

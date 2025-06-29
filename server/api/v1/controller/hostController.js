@@ -3,6 +3,7 @@ const hostService = require('../services/user/hostService')
 
 const getListing = asyncHandler(async (req, res, next) => {
     const host = await hostService.getHostListing(req.user.id)
+    
     return res.status(200).json({
         message: 'Success',
         data: host
