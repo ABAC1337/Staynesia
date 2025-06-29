@@ -9,7 +9,7 @@ const findUserById = async (id) => {
 }
 
 const findUser = async (queryObj) => {
-    const { filterObj, optionsObj } = queryObj;
+    const { filterObj = {}, optionsObj = {} } = queryObj;
     const { populate, select } = optionsObj
     let query = DB.User.find(filterObj)
     if (populate)

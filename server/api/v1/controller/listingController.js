@@ -3,6 +3,7 @@ const bookingService = require("../services/bookingService");
 const asyncHandler = require("../../../utils/asyncHandler");
 
 const createListing = asyncHandler(async (req, res, next) => {
+<<<<<<< HEAD
   const urlImg = req.files.map((item) => item.filename);
   const parse = JSON.parse(req.body.form);
   const hostId = req.user.id;
@@ -28,6 +29,27 @@ const deleteListing = asyncHandler(async (req, res, next) => {
     message: "Listing Deleted",
   });
 });
+=======
+    await listingService.createListing(req.user.id, req.body)
+    return res.status(201).json({
+        message: "Listing Created"
+    });
+});
+
+const updateListing = asyncHandler(async (req, res, next) => {
+    await listingService.updateListing(req.user.id, req.body)
+    return res.status(200).json({
+        message: "Listing Updated"
+    });
+})
+
+const deleteListing = asyncHandler(async (req, res, next) => {
+    await listingService.deleteListing(req.user.id)
+    return res.status(200).json({
+        message: "Listing Deleted"
+    })
+})
+>>>>>>> 6a27cfd830d22591018326d0d30b2e4ab90bed14
 
 const pagination = asyncHandler(async (req, res, next) => {
   const listing = await listingService.getPagination(req.query);

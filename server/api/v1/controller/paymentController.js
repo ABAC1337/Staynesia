@@ -2,21 +2,21 @@ const asyncHandler = require('../../../utils/asyncHandler')
 const paymentService = require('../services/paymentService')
 
 const createPayment = asyncHandler(async (req, res, next) => {
-    const payment = await paymentService.createPayment(req.body)
+    await paymentService.createPayment(req.body)
     return res.status(201).json({
         message: "Payment Created"
     })
 })
 
 const updatePayment = asyncHandler(async (req, res, next) => {
-    const payment = await paymentService.updatePayment(req.params.id, req.body)
+    await paymentService.updatePayment(req.params.id, req.body)
     return res.status(201).json({
         message: "Payment Updated"
     })
 })
 
 const deletePayment = asyncHandler(async (req, res, next) => {
-    const payment = await paymentService.deletePayment(req.params.id, req.body)
+    await paymentService.deletePayment(req.params.id, req.body)
     return res.status(201).json({
         message: "Payment Deleted"
     })
