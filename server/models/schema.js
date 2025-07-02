@@ -179,6 +179,16 @@ const PaymentSchema = new Schema({
             message: "This status does not exist"
         }
     },
+    taxAmount:{
+        type: Number,
+        min: [0, 'Tax must be greater than or equal 0'],
+        required: [true, "Amount is required field!"]
+    },
+    feeAmount: {
+        type: Number,
+        min: [0, 'Fee must be greater than or equal 0'],
+        required: [true, "Amount is required field!"]
+    },
     amount: {
         type: Number,
         min: [0, 'Amount must be greater than or equal 0'],
