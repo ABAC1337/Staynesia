@@ -3,7 +3,6 @@ const bookingService = require("../services/bookingService");
 const asyncHandler = require("../../../utils/asyncHandler");
 
 const createListing = asyncHandler(async (req, res, next) => {
-
   const urlImg = req.files.map((item) => item.filename);
   const parse = JSON.parse(req.body.form);
   const hostId = req.user.id;
@@ -28,7 +27,6 @@ const deleteListing = asyncHandler(async (req, res, next) => {
     message: "Listing Deleted",
   });
 });
-
 
 const pagination = asyncHandler(async (req, res, next) => {
    await listingService.getPagination(req.query);
