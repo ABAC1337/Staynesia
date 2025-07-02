@@ -10,7 +10,7 @@ const createBooking = async (id, data) => {
 
   const checkInDate = dateConverter(checkIn);
   const checkOutDate = dateConverter(checkOut);
-  
+
   if (checkInDate >= checkOutDate) throw new ErrorHandler("Invalid Date", 400);
 
   const bookedDates = await getBookedDates(data.listingId);
@@ -21,14 +21,17 @@ const createBooking = async (id, data) => {
   );
   if (!available)
     throw new ErrorHandler("Cannot book due to booked by someone", 400);
-  
+
   const listing = await listingRepo.findById(data.listingId);
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
-  const totalPrice = listing.price * convertDuration;
+  const priceDuration = listing.price * convertDuration;
+  const taxAmount = priceDuration * 0.12
+  const feeAmount = 5000
+  const totalPrice = priceDuration + taxAmount + feeAmount
   if (totalPrice < 0)
     throw new ErrorHandler("Invalid Value, value was minus", 400);
-  
+
   const dataBooking = {
     checkIn: checkInDate,
     checkOut: checkOutDate,
@@ -37,7 +40,7 @@ const createBooking = async (id, data) => {
     userId: id,
     listingId: listingId,
   };
-  console.log(dataBooking);
+
   const booking = await bookingRepo.createBooking(dataBooking);
 
   await Promise.all([
@@ -59,7 +62,16 @@ const updateBooking = async (data) => {
 };
 
 const deleteBooking = async (id) => {
-  return await bookingRepo.deleteBooking(id);
+  const booking = await bookingRepo.deleteBooking(id);
+  await Promise.all([
+    listingRepo.updateListing(booking.listingId, {
+      $pull: { bookings: booking._id },
+    }),
+    userRepo.updateUser(booking.userId, {
+      $pull: { bookings: booking._id },
+    }),
+  ]);
+  return booking;
 };
 
 function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
