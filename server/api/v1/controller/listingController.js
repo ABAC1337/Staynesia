@@ -29,7 +29,7 @@ const deleteListing = asyncHandler(async (req, res, next) => {
 });
 
 const pagination = asyncHandler(async (req, res, next) => {
-   await listingService.getPagination(req.query);
+  const listing = await listingService.getPagination(req.query);
   return res.status(200).json({
     message: "Success",
     length: listing.length,

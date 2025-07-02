@@ -2,7 +2,8 @@ const asyncHandler = require('../../../utils/asyncHandler')
 const wishlistService = require('../services/wishlistService')
 
 const createWishlist = asyncHandler(async (req, res, next) => {
-    await wishlistService.createWishlist(req.body)
+    await wishlistService.createWishlist(req.body.id,req.user.id)
+
     return res.status(201).json({
         message: "Wishlist Created"
     })

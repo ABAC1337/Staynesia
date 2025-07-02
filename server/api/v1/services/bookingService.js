@@ -22,7 +22,7 @@ const createBooking = async (id, data) => {
   if (!available)
     throw new ErrorHandler("Cannot book due to booked by someone", 400);
   
-  const listing = await listingRepo.findOneListing({ _id: data.listingId });
+  const listing = await listingRepo.findById(data.listingId);
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
   const totalPrice = listing.price * convertDuration;
