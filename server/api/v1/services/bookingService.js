@@ -10,9 +10,7 @@ const createBooking = async (id, data) => {
 
   const checkInDate = dateConverter(checkIn);
   const checkOutDate = dateConverter(checkOut);
-
   if (checkInDate >= checkOutDate) throw new ErrorHandler("Invalid Date", 400);
-
   const bookedDates = await getBookedDates(data.listingId);
   const available = isBookingAvailable(
     bookedDates,
@@ -36,6 +34,8 @@ const createBooking = async (id, data) => {
     checkIn: checkInDate,
     checkOut: checkOutDate,
     numGuest: parseInt(numGuest),
+    taxAmount: taxAmount,
+    feeAmount: feeAmount,
     totalPrice: totalPrice,
     userId: id,
     listingId: listingId,
@@ -87,8 +87,18 @@ function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
 }
 
 const getBookedDates = async (listingId) => {
-  const booking = await bookingRepo.findBooking({ listingId: listingId });
-
+  const filterObj = {
+    listingId: listingId,
+    statusBooking: 'confirmed'
+  }
+  const optionsObj = {
+    select: 'checkIn checkOut'
+  }
+  const queryObj = {
+    filterObj,
+    optionsObj
+  }
+  const booking = await bookingRepo.findBooking(queryObj);
   const result = [];
   for (const bd of booking) {
     let start = dateConverter(bd.checkIn);
@@ -102,9 +112,25 @@ const getBookedDates = async (listingId) => {
   return result;
 };
 
+const getBookingById = async (id) => {
+  if (!id) throw new ErrorHandler("Booking Not Found", 404);
+  const queryObj = {
+    filterObj: {
+      _id: id,
+    },
+    optionsObj:{
+      populate: {
+        path: 'listingId'
+      }
+    }
+  }
+  return await bookingRepo.findBookingById(queryObj)
+}
+
 module.exports = {
   createBooking,
   getBookedDates,
+  getBookingById,
   updateBooking,
   deleteBooking,
 };
