@@ -145,6 +145,16 @@ const BookingSchema = new Schema({
         min: [1, "Number of review must be above 0"],
         required: [true, "Number of guest is required field!"]
     },
+    taxAmount:{
+        type: Number,
+        min: [0, 'Tax must be greater than or equal 0'],
+        required: [true, "Amount is required field!"]
+    },
+    feeAmount: {
+        type: Number,
+        min: [0, 'Fee must be greater than or equal 0'],
+        required: [true, "Amount is required field!"]
+    },
     totalPrice: {
         type: Number,
         min: [0, "Number of review must be above 0"],
@@ -178,16 +188,6 @@ const PaymentSchema = new Schema({
             values: ["pending", "success", "canceled"],
             message: "This status does not exist"
         }
-    },
-    taxAmount:{
-        type: Number,
-        min: [0, 'Tax must be greater than or equal 0'],
-        required: [true, "Amount is required field!"]
-    },
-    feeAmount: {
-        type: Number,
-        min: [0, 'Fee must be greater than or equal 0'],
-        required: [true, "Amount is required field!"]
     },
     amount: {
         type: Number,
