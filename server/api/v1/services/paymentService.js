@@ -21,12 +21,12 @@ const updatePayment = async (id, data) => {
 
 const deletePayment = async (id) => {
     if (!id) throw new ErrorHandler('Payment not found', 404)
-    const payment = await paymentRepo.deletePayment(id)
+    const payment = await paymentRepo.findPaymentById(id)
     await Promise.all([
         bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
         userRepo.updateUser(payment.userId, { $pull: { bookings: booking._id } })
     ])
-    return payment
+    return await paymentRepo.deletePayment(id)
 }
 
 module.exports = {

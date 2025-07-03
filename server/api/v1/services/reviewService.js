@@ -30,11 +30,12 @@ const updateReview = async (data) => {
 const deleteReview = async (id) => {
     if (!id)
         throw new ErrorHandler('Data Not Found', 404)
-    const review = await reviewRepo.deleteReview(id)
+    const review = await reviewRepo.findReviewById(id)
     await Promise.all([
         listingRepo.updateListing(review.listingId, { $pull: { reviews: review._id, } }),
         userRepo.updateUser(review.userId, { $pull: { reviews: review._id } })
     ])
+    return await reviewRepo.deleteReview(id)
 }
 
 
