@@ -10,7 +10,7 @@ const createWishlist = asyncHandler(async (req, res, next) => {
 })
 
 const deleteWishlist = asyncHandler(async (req, res, next) => {
-    await wishlistService.deleteWishlist(req.params.id)
+    await wishlistService.deleteWishlist(req.params.id, req.user.id)
     return res.status(200).json({
         message: "Wishlist Deleted"
     })
