@@ -4,6 +4,10 @@ const createReview = async (data) => {
     return await DB.Review.create(data)
 }
 
+const findReviewById = async (id) => {
+    return await DB.Review.findById(id)
+}
+
 const updateReview = async (id, data) => {
     return await DB.Review.findByIdAndUpdate(id, data)
 }
@@ -34,6 +38,7 @@ const calculationReview = async (id) => {
 
 module.exports = {
     createReview,
+    findReviewById,
     updateReview,
     deleteReview,
     calculationReview
