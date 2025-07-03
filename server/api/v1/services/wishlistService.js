@@ -19,11 +19,10 @@ const createWishlist = async (listingId, id) => {
 
 const deleteWishlist = async (id, userId) => {
   if (!id) throw new ErrorHandler("listing Not Found", 404);
-  const wishlist = await wishlistRepo.deleteWishlist(id);
   await userRepo.updateUser(userId, {
     $pull: { wishlists: id },
   });
-  return wishlist
+  return await wishlistRepo.deleteWishlist(id);
 };
 
 module.exports = {
