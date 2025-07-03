@@ -22,8 +22,17 @@ const deleteBooking = asyncHandler(async (req, res, next) => {
     })
 })
 
+const getBookingId = asyncHandler(async (req, res, next) => {
+    const booking = await bookingService.getBookingById(req.params.id)
+    return res.status(200).json({
+        message: "Success",
+        data: booking
+    })
+})
+
 module.exports = {
     createBooking,
     updateBooking,
-    deleteBooking
+    deleteBooking,
+    getBookingId
 }
