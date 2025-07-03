@@ -1,5 +1,4 @@
 const wishlistRepo = require("../repositories/wishlistRepository");
-const listingRepo = require("../repositories/listingRepository");
 const userRepo = require("../repositories/userRepository");
 const ErrorHandler = require("../../../utils/errorHandler");
 
@@ -20,7 +19,11 @@ const createWishlist = async (listingId, id) => {
 
 const deleteWishlist = async (id) => {
   if (!id) throw new ErrorHandler("listing Not Found", 404);
-  return await wishlistRepo.deleteWishlist(id);
+  const wishlist = await wishlistRepo.deleteWishlist(id);
+  await userRepo.updateUser(wishlist.userId, {
+    $pull: { wishlists: wishlist._id },
+  });
+  return wishlist
 };
 
 module.exports = {

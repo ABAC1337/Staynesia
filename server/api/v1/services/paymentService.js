@@ -8,20 +8,25 @@ const createPayment = async (data) => {
     const payment = await paymentRepo.createPayment(data)
     if (!payment) throw new ErrorHandler('Failed to create payment', 400)
     await Promise.all([
-        bookingRepo.updateBooking(payment.bookingId, {paymentId: payment._id}),
-        userRepo.updateUser(payment.userId, {$addToSet: {payments: payment._id}})
+        bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
+        userRepo.updateUser(payment.userId, { $addToSet: { payments: payment._id } })
     ])
     return payment
 }
 
 const updatePayment = async (id, data) => {
-    if (!id || !data) throw new errorHandler('Payment not found', 404)
+    if (!id || !data) throw new ErrorHandler('Payment not found', 404)
     return await paymentRepo.updatePayment(id, data)
 }
 
 const deletePayment = async (id) => {
-    if (!id) throw new errorHandler('Payment not found', 404)
-    return await paymentRepo.deletePayment(id)
+    if (!id) throw new ErrorHandler('Payment not found', 404)
+    const payment = await paymentRepo.deletePayment(id)
+    await Promise.all([
+        bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
+        userRepo.updateUser(payment.userId, { $pull: { bookings: booking._id } })
+    ])
+    return payment
 }
 
 module.exports = {

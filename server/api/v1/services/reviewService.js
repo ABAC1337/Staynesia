@@ -14,12 +14,10 @@ const createReview = async (data) => {
         rating: rating,
         numRating: numRating
     }
-    console.log(update);
-
     if (!review) throw new ErrorHandler('Failed to create review', 400)
     await Promise.all([
         listingRepo.updateListing(review.listingId, update),
-        userRepo.updateUser(review.userId, update, { $addToSet: { reviews: review._id } })
+        userRepo.updateUser(review.userId, { $addToSet: { reviews: review._id } })
     ])
     return review
 }
@@ -32,7 +30,11 @@ const updateReview = async (data) => {
 const deleteReview = async (id) => {
     if (!id)
         throw new ErrorHandler('Data Not Found', 404)
-    return await reviewRepo.deleteReview(id)
+    const review = await reviewRepo.deleteReview(id)
+    await Promise.all([
+        listingRepo.updateListing(review.listingId, { $pull: { reviews: review._id, } }),
+        userRepo.updateUser(review.userId, { $pull: { reviews: review._id } })
+    ])
 }
 
 
