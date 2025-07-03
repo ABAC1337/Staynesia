@@ -8,8 +8,18 @@ const findBookingById = async (id) => {
     return await DB.Booking.findById(id);
 }
 
-const findBooking = async (data) => {
-    return await DB.Booking.find(data);
+const findBooking = async (queryObj) => {
+    const { filterObj = {}, optionsObj = {} } = queryObj;
+    const { populate, select } = optionsObj;
+    let query = DB.Listing.find(filterObj);
+    if (populate)
+        if (Array.isArray(populate)) {
+            optionsObj.populate.forEach((pop) => {
+                query = query.populate(pop);
+            });
+        } else query = query.populate(populate);
+    if (select) query = query.select(select);
+    return await query;
 }
 
 const updateBooking = async (id, data) => {

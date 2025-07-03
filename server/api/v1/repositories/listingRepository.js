@@ -9,10 +9,8 @@ const findById = async (data) => {
 };
 
 const findListing = async (queryObj) => {
-  const { filterObj, optionsObj } = queryObj;
-
+  const { filterObj = {}, optionsObj = {} } = queryObj;
   const { populate, select, sort, skip, limit } = optionsObj;
-
   let query = DB.Listing.find(filterObj);
   if (populate)
     if (Array.isArray(populate)) {
