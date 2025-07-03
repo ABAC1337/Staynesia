@@ -4,6 +4,7 @@ const router = express.Router()
 
 router.post('/create', bookingController.createBooking)
 router.route('/:id')
+    .get(bookingController.getBookingId)
     .patch(bookingController.updateBooking)
     .delete(bookingController.deleteBooking)
 
