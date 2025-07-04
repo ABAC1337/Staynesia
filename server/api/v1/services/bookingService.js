@@ -23,17 +23,19 @@ const createBooking = async (id, data) => {
   const listing = await listingRepo.findById(data.listingId);
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
-  const priceDuration = listing.price * convertDuration;
-  const taxAmount = priceDuration * 0.12
+  const calculatePrice = listing.price * convertDuration;
+  const taxAmount = calculatePrice * 0.12
   const feeAmount = 5000
-  const totalPrice = priceDuration + taxAmount + feeAmount
+  const totalPrice = calculatePrice + taxAmount + feeAmount
   if (totalPrice < 0)
     throw new ErrorHandler("Invalid Value, value was minus", 400);
 
   const dataBooking = {
     checkIn: checkInDate,
     checkOut: checkOutDate,
+    duration: convertDuration,
     numGuest: parseInt(numGuest),
+    calculatePrice: calculatePrice,
     taxAmount: taxAmount,
     feeAmount: feeAmount,
     totalPrice: totalPrice,
