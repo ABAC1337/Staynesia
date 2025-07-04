@@ -10,7 +10,7 @@ const createWishlist = async (listingId, id) => {
   };
   const existingListing = await wishlistRepo.findOneWishlist(Obj)
   if (existingListing) 
-    throw new ErrorHandler('Listing already added')
+    throw new ErrorHandler('Listing already added', 400)
 
   const wishlist = await wishlistRepo.createWishlist(Obj);
   if (!wishlist) throw new ErrorHandler("Failed to create wishlist", 400);
@@ -18,7 +18,7 @@ const createWishlist = async (listingId, id) => {
   await userRepo.updateUser(wishlist.userId, {
     $addToSet: { wishlists: wishlist._id },
   });
-  
+
   return wishlist;
 };
 
