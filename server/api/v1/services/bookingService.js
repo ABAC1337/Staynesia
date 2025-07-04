@@ -24,9 +24,9 @@ const createBooking = async (id, data) => {
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
   const calculatePrice = listing.price * convertDuration;
-  const taxAmount = calculatePrice * 0.12
-  const feeAmount = 5000
-  const totalPrice = calculatePrice + taxAmount + feeAmount
+  const taxAmount = calculatePrice * 0.12;
+  const feeAmount = 5000;
+  const totalPrice = calculatePrice + taxAmount + feeAmount;
   if (totalPrice < 0)
     throw new ErrorHandler("Invalid Value, value was minus", 400);
 
@@ -58,9 +58,18 @@ const createBooking = async (id, data) => {
 
 const updateBooking = async (data) => {
   if (!data.id) throw new ErrorHandler("Booking Not Found", 404);
-  if (new Date(data.checkIn) >= new Date(data.checkOut))
+  const { checkIn, checkOut, numGuest } = data;
+  if (dateConverter(checkIn) >= dateConverter(checkOut))
     throw new ErrorHandler("Invalid Date", 400);
-  return await bookingRepo.updateBooking(data);
+  const listing = await listingRepo.findById(data.listingId);
+  if (numGuest > listing.capacity)
+    throw new ErrorHandler(`Number of guest must be ${listing.capacity} or below`, 400);
+  const bookingData = {
+    checkIn,
+    checkOut,
+    numGuest
+  }
+  return await bookingRepo.updateBooking(data.id, bookingData);
 };
 
 const deleteBooking = async (id) => {
@@ -91,15 +100,15 @@ function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
 const getBookedDates = async (listingId) => {
   const filterObj = {
     listingId: listingId,
-    statusBooking: 'confirmed'
-  }
+    statusBooking: "confirmed",
+  };
   const optionsObj = {
-    select: 'checkIn checkOut'
-  }
+    select: "checkIn checkOut",
+  };
   const queryObj = {
     filterObj,
-    optionsObj
-  }
+    optionsObj,
+  };
   const booking = await bookingRepo.findBooking(queryObj);
   const result = [];
   for (const bd of booking) {
@@ -119,16 +128,16 @@ const getBookingById = async (id) => {
   const filterObj = { _id: id };
   const optionsObj = {
     populate: {
-      path: 'listingId',
-      select: 'title imgUrl rating numRating location.province'
-    }
+      path: "listingId",
+      select: "title imgUrl rating numRating location.province",
+    },
   };
   const queryObj = {
-    filterObj, 
-    optionsObj
+    filterObj,
+    optionsObj,
   };
   const result = await bookingRepo.findBooking(queryObj);
-  return result; 
+  return result;
 };
 
 module.exports = {
