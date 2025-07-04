@@ -114,18 +114,19 @@ const getBookedDates = async (listingId) => {
 
 const getBookingById = async (id) => {
   if (!id) throw new ErrorHandler("Booking Not Found", 404);
-  const queryObj = {
-    filterObj: {
-      _id: id,
-    },
-    optionsObj:{
-      populate: {
-        path: 'listingId'
-      }
+  const filterObj = { _id: id };
+  const optionsObj = {
+    populate: {
+      path: 'listingId'
     }
-  }
-  return await bookingRepo.findBookingById(queryObj)
-}
+  };
+  const queryObj = {
+    filterObj, 
+    optionsObj
+  };
+  const result = await bookingRepo.findBooking(queryObj);
+  return result; 
+};
 
 module.exports = {
   createBooking,

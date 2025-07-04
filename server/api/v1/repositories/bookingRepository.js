@@ -11,10 +11,10 @@ const findBookingById = async (id) => {
 const findBooking = async (queryObj) => {
     const { filterObj = {}, optionsObj = {} } = queryObj;
     const { populate, select } = optionsObj;
-    let query = DB.Listing.find(filterObj);
+    let query = DB.Booking.find(filterObj);
     if (populate)
         if (Array.isArray(populate)) {
-            optionsObj.populate.forEach((pop) => {
+            populate.forEach((pop) => {
                 query = query.populate(pop);
             });
         } else query = query.populate(populate);
