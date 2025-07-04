@@ -140,10 +140,19 @@ const BookingSchema = new Schema({
         type: Date,
         required: [true, "Check out is required field!"]
     },
+    duration: {
+        type: Number,
+        required: [true, "Duration is required field!"]
+    },
     numGuest: {
         type: Number,
         min: [1, "Number of review must be above 0"],
         required: [true, "Number of guest is required field!"]
+    },
+    calculatePrice: {
+        type: Number,
+        min: [0, 'Price must be greater than or equal 0'],
+        required: [true, "Amount is required field!"]
     },
     taxAmount:{
         type: Number,
@@ -157,7 +166,7 @@ const BookingSchema = new Schema({
     },
     totalPrice: {
         type: Number,
-        min: [0, "Number of review must be above 0"],
+        min: [0, "totalPrice must be above 0"],
         required: [true, "Total price is required field!"]
     },
     statusBooking: {
