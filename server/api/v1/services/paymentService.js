@@ -3,9 +3,16 @@ const bookingRepo = require('../repositories/bookingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 
-const createPayment = async (data) => {
+const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
-    const payment = await paymentRepo.createPayment(data)
+    const { paymentMethod, amount, bookingId } = data;
+    const paymentData = {
+        paymentMethod,
+        amount,
+        bookingId,
+        userId
+    }
+    const payment = await paymentRepo.createPayment(paymentData)
     if (!payment) throw new ErrorHandler('Failed to create payment', 400)
     await Promise.all([
         bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
