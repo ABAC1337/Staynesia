@@ -8,7 +8,7 @@ const crypto = require('crypto')
 
 const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
-    const { amount, duration, title, first_name, email, phone } = data;
+    const { bookingId, amount, duration, title, first_name, email, phone } = data;
 
     const snap = midtransClient.snap({
         isProduction: false,
