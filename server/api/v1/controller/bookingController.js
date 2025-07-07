@@ -15,6 +15,13 @@ const updateBooking = asyncHandler(async (req, res, next) => {
     })
 })
 
+const updateStatus = asyncHandler(async (req, res, next) => {
+    await bookingService.updateStatusBooking(req.params.id, req.query.status)
+    return res.status(200).json({
+        message: "Booking Status Updated"
+    })
+})
+
 const deleteBooking = asyncHandler(async (req, res, next) => {
     await bookingService.deleteBooking(req.params.id)
     return res.status(200).json({
@@ -33,6 +40,7 @@ const getBookingId = asyncHandler(async (req, res, next) => {
 module.exports = {
     createBooking,
     updateBooking,
+    updateStatus,
     deleteBooking,
     getBookingId
 }
