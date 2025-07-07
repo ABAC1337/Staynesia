@@ -10,7 +10,7 @@ const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
     const { bookingId, amount, duration, title, first_name, email, phone } = data;
 
-    const snap = midtransClient.snap({
+    const snap = new midtransClient.Snap({
         isProduction: false,
         serverKey: process.env.MIDTRANS_SERVER_KEY
     })
@@ -20,12 +20,12 @@ const createPayment = async (userId, data) => {
             order_id: order_id,
             gross_amount: amount,
         },
-        item_details: {
+        item_details: [{
             id: bookingId,
             price: amount,
             quantity: duration,
             name: title
-        },
+        }],
         customer_details: {
             first_name: first_name,
             email: email,
@@ -36,6 +36,7 @@ const createPayment = async (userId, data) => {
 
     const paymentData = {
         order_id: order_id,
+        paymentMethod: 'Midtrans',
         amount: amount,
         bookingId: bookingId,
         userId: userId
