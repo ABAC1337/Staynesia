@@ -61,9 +61,20 @@ const updateBooking = async (data) => {
   const { checkIn, checkOut, numGuest } = data;
   if (dateConverter(checkIn) >= dateConverter(checkOut))
     throw new ErrorHandler("Invalid Date", 400);
+  
   const listing = await listingRepo.findById(data.listingId);
+  const bookedDates = await getBookedDates(data.listingId);
+  const available = isBookingAvailable(
+    bookedDates,
+    data.checkIn,
+    data.checkOut
+  );
+
   if (numGuest > listing.capacity)
     throw new ErrorHandler(`Number of guest must be ${listing.capacity} or below`, 400);
+  if (!available)
+    throw new ErrorHandler("Cannot book due to booked by someone", 400);
+
   const bookingData = {
     checkIn,
     checkOut,
@@ -134,7 +145,7 @@ const getBookingById = async (id) => {
   const optionsObj = {
     populate: {
       path: "listingId",
-      select: "title category imgUrl rating numRating location.province",
+      select: "title category capacity imgUrl rating numRating location.province",
     },
   };
   const queryObj = {
