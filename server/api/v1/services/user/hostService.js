@@ -69,7 +69,7 @@ const getHostPayment = async (id) => {
             path: 'listings',
             populate: {
                 path: 'bookings',
-                match: {statusBooking: 'success'},
+                match: {bookingStatus: 'success'},
                 select: 'bookings',
                 populate: {
                     path: 'paymentId',

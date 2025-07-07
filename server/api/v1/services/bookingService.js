@@ -105,7 +105,7 @@ function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
 const getBookedDates = async (listingId) => {
   const filterObj = {
     listingId: listingId,
-    statusBooking: "confirmed",
+    bookingStatus: "confirmed",
   };
   const optionsObj = {
     select: "checkIn checkOut",
