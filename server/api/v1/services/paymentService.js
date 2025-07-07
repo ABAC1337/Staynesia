@@ -2,38 +2,87 @@ const paymentRepo = require('../repositories/paymentRepository')
 const bookingRepo = require('../repositories/bookingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
+const midtransClient = require('midtrans-client')
+const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto')
 
 const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
-    const { paymentMethod, amount, bookingId } = data;
+    const { amount, duration, title, first_name, email, phone } = data;
+
+    const snap = midtransClient.snap({
+        isProduction: false,
+        serverKey: process.env.MIDTRANS_SERVER_KEY
+    })
+    const order_id = 'ORDER-' + uuidv4()
+    const parameter = {
+        transaction_details: {
+            order_id: order_id,
+            gross_amount: amount,
+        },
+        item_details: {
+            id: bookingId,
+            price: amount,
+            quantity: duration,
+            name: title
+        },
+        customer_details: {
+            first_name: first_name,
+            email: email,
+            phone: phone,
+        },
+        credit_card: { secure: true },
+    };
+
     const paymentData = {
-        paymentMethod,
-        amount,
-        bookingId,
-        userId
+        order_id: order_id,
+        amount: amount,
+        bookingId: bookingId,
+        userId: userId
     }
+
     const payment = await paymentRepo.createPayment(paymentData)
-    if (!payment) throw new ErrorHandler('Failed to create payment', 400)
     await Promise.all([
         bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
         userRepo.updateUser(payment.userId, { $addToSet: { payments: payment._id } })
     ])
-    return payment
+    return await snap.createTransaction(parameter)
 }
 
-const updatePayment = async (id, data) => {
-    if (!id || !data) throw new ErrorHandler('Payment Not Found', 404)
-    return await paymentRepo.updatePayment(id, data)
-}
+const updateStatusBasedOnMidtrans = async (data) => {
+    const { order_id, status_code, gross_amount, signature_key,
+        transaction_status: ts, fraud_status: fs, payment_type } = data;
+    const payment = await paymentRepo.findPaymentById(data.order_id)
+    if (!payment)
+        throw new ErrorHandler('Order Id Not Found', 404)
 
-const updateStatusPayment = async (id, statusQuery) => {
-    if (!id || !statusQuery) throw new ErrorHandler('Payment Not Found')
-    const paymentData = {}
-    if (statusQuery === 'confirm') {
-        paymentData.paidAt = Date.now()
+    const hash = crypto.createHash('sha512')
+        .update(`${order_id}${status_code}${gross_amount}${process.env.MIDTRANS_SERVER_KEY}`)
+        .digest('hex');
+
+    if (signature_key !== hash)
+        throw new ErrorHandler('Invalid Signature Key', 400)
+
+    let newStatus;
+    if (ts == 'capture') {
+        if (fs == 'accept')
+            newStatus = 'success'
+    } else if (ts == 'settlement') {
+        newStatus = 'success'
+    } else if (ts == 'cancel' || transactionStatus == 'deny' || transactionStatus == 'expire') {
+        newStatus = 'cancel'
+    } else if (ts == 'pending') {
+        newStatus = pending
     }
-    paymentData.paymentStatus = statusQuery;
-    return await paymentRepo.updatePayment(id, paymentData)
+
+    if (!newStatus) throw new ErrorHandler('Unknown Payment Status', 404)
+    if (payment.status == newStatus) throw new ErrorHandler('Status Still The Same', 400)
+    const paymentData = {
+        order_id: order_id,
+        paymentStatus: newStatus,
+        paymentMethod: payment_type
+    }
+    return await paymentRepo.updatePayment(payment._id, paymentData)
 }
 
 const deletePayment = async (id) => {
@@ -48,7 +97,6 @@ const deletePayment = async (id) => {
 
 module.exports = {
     createPayment,
-    updatePayment,
-    updateStatusPayment,
+    updateStatusBasedOnMidtrans,
     deletePayment
 }
