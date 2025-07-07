@@ -22,15 +22,20 @@ const createPayment = async (userId, data) => {
 }
 
 const updatePayment = async (id, data) => {
-    if (!id || !data) throw new ErrorHandler('Payment not found', 404)
+    if (!id || !data) throw new ErrorHandler('Payment Not Found', 404)
     return await paymentRepo.updatePayment(id, data)
+}
+
+const updateStatusPayment = async (id, statusQuery) => {
+    if (!id || !statusQuery) throw new ErrorHandler('Payment Not Found')
+    return await paymentRepo.updatePayment(id, { paymentStatus: statusQuery})
 }
 
 const deletePayment = async (id) => {
     if (!id) throw new ErrorHandler('Payment not found', 404)
     const payment = await paymentRepo.findPaymentById(id)
     await Promise.all([
-        bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
+        bookingRepo.updateBooking(payment.bookingId, { paymentId: null }),
         userRepo.updateUser(payment.userId, { $pull: { bookings: booking._id } })
     ])
     return await paymentRepo.deletePayment(id)
@@ -39,5 +44,6 @@ const deletePayment = async (id) => {
 module.exports = {
     createPayment,
     updatePayment,
+    updateStatusPayment,
     deletePayment
 }

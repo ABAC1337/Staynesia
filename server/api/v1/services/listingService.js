@@ -125,6 +125,15 @@ const getPagination = async (params) => {
   return listing;
 };
 
+const getTopRated = async () => {
+  const optionsObj = {
+    sort: '-rating -numRating',
+    limit: 10
+  }
+  const queryObj = { optionsObj }
+  return await listingRepo.findListing(queryObj)
+}
+
 const getListingId = async (id) => {
   if (!id) throw new ErrorHandler("Listing not found", 404);
   const filterObj = {};
@@ -161,4 +170,5 @@ module.exports = {
   deleteListing,
   getPagination,
   getListingId,
+  getTopRated
 };

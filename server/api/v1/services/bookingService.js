@@ -72,8 +72,13 @@ const updateBooking = async (data) => {
   return await bookingRepo.updateBooking(data.id, bookingData);
 };
 
+const updateStatusBooking = async (id, statusQuery) => {
+  if (!data.id) throw new ErrorHandler('Booking Not Found', 404)
+  return await bookingRepo.updateBooking(id, {bookingStatus: statusQuery})
+}
+
 const deleteBooking = async (id) => {
-  const booking = await bookingRepo.deleteBooking(id);
+  const booking = await bookingRepo.findBookingById(id);
   await Promise.all([
     listingRepo.updateListing(booking.listingId, {
       $pull: { bookings: booking._id },
@@ -82,7 +87,7 @@ const deleteBooking = async (id) => {
       $pull: { bookings: booking._id },
     }),
   ]);
-  return booking;
+  return await bookingRepo.deleteBooking(id);
 };
 
 function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
@@ -145,5 +150,6 @@ module.exports = {
   getBookedDates,
   getBookingById,
   updateBooking,
+  updateStatusBooking,
   deleteBooking,
 };
