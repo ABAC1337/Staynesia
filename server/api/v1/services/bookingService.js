@@ -74,7 +74,7 @@ const updateBooking = async (data) => {
 
 const updateStatusBooking = async (id, statusQuery) => {
   if (!data.id) throw new ErrorHandler('Booking Not Found', 404)
-  return await bookingRepo.updateBooking(id, {bookingStatus: statusQuery})
+  return await bookingRepo.updateBooking(id, { bookingStatus: statusQuery })
 }
 
 const deleteBooking = async (id) => {

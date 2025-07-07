@@ -127,6 +127,7 @@ const getPagination = async (params) => {
 
 const getTopRated = async () => {
   const optionsObj = {
+    select: "title category location.city location.province price imgUrl rating numRating",
     sort: '-rating -numRating',
     limit: 10
   }

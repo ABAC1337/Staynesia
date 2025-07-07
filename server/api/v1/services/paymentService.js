@@ -28,7 +28,12 @@ const updatePayment = async (id, data) => {
 
 const updateStatusPayment = async (id, statusQuery) => {
     if (!id || !statusQuery) throw new ErrorHandler('Payment Not Found')
-    return await paymentRepo.updatePayment(id, { paymentStatus: statusQuery})
+    const paymentData = {}
+    if (statusQuery === 'confirm') {
+        paymentData.paidAt = Date.now()
+    }
+    paymentData.paymentStatus = statusQuery;
+    return await paymentRepo.updatePayment(id, paymentData)
 }
 
 const deletePayment = async (id) => {
