@@ -199,7 +199,7 @@ const PaymentSchema = new Schema({
     },
     paymentStatus: {
         type: String,
-        default: "success",
+        default: "pending",
         lowercase: true,
         enum: {
             values: ["pending", "success", "canceled"],
