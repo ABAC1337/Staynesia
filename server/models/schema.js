@@ -169,7 +169,7 @@ const BookingSchema = new Schema({
         min: [0, "totalPrice must be above 0"],
         required: [true, "Total price is required field!"]
     },
-    statusBooking: {
+    bookingStatus: {
         type: String,
         default: "pending",
         lowercase: true,
@@ -178,8 +178,16 @@ const BookingSchema = new Schema({
             message: "This status does not exist"
         }
     },
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
-    listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
+    userId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'User',
+        required: [true, "User is required"]
+    },
+    listingId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Listing',
+        required: [true, "Listing is required"]
+    },
     paymentId: { type: Schema.Types.ObjectId, ref: 'Payment' }
 }, { timestamps: true });
 
@@ -206,14 +214,20 @@ const PaymentSchema = new Schema({
     paidAt: {
         type: Date
     },
-    bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
-    userId: { type: Schema.Types.ObjectId, ref: 'User' }
+    bookingId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Booking',
+        required: [true, "Booking is required"]
+    },
+    userId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'User',
+        required: [true, "User is required"]
+    }
 }, { timestamps: true });
 
 // Review Schema
 const ReviewSchema = new Schema({
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
-    listingId: { type: Schema.Types.ObjectId, ref: 'Listing' },
     rating: {
         type: Number,
         min: [1, "Rating must be 1.0 or above"],
@@ -221,14 +235,32 @@ const ReviewSchema = new Schema({
     },
     reviewText: {
         type: String,
-        maxlength: [100, "Review must be below 100 characters"]
-    }
+        maxlength: [500, "Review must be below 500 characters"]
+    },
+    userId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'User',
+        required: [true, "User is required"]
+    },
+    listingId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Listing',
+        required: [true, "Listing is required"]
+    },
 }, { timestamps: true });
 
 // Wishlist Schema
 const WishlistSchema = new Schema({
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
-    listingId: { type: Schema.Types.ObjectId, ref: 'Listing' }
+    userId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'User',
+        required: [true, "User is required"]
+    },
+    listingId: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Listing',
+        required: [true, "Listing is required"]
+    },
 }, { timestamps: true });
 
 // Export models
