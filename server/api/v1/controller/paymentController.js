@@ -2,9 +2,10 @@ const asyncHandler = require('../../../utils/asyncHandler')
 const paymentService = require('../services/paymentService')
 
 const createPayment = asyncHandler(async (req, res, next) => {
-    await paymentService.createPayment(req.user.id, req.body)
+    const payment = await paymentService.createPayment(req.user.id, req.body)
     return res.status(201).json({
-        message: "Payment Created"
+        message: "Payment Created",
+        data: payment
     })
 })
 

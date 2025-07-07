@@ -31,9 +31,11 @@ const deleteBooking = asyncHandler(async (req, res, next) => {
 
 const getBookingId = asyncHandler(async (req, res, next) => {
     const booking = await bookingService.getBookingById(req.params.id)
+    const booked = await bookingService.getBookedDates(req.params.id);
     return res.status(200).json({
         message: "Success",
-        data: booking
+        data: booking,
+        bookedData: booked
     })
 })
 
