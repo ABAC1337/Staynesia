@@ -8,15 +8,8 @@ const createPayment = asyncHandler(async (req, res, next) => {
     })
 })
 
-const updatePayment = asyncHandler(async (req, res, next) => {
-    await paymentService.updatePayment(req.params.id, req.body)
-    return res.status(201).json({
-        message: "Payment Updated"
-    })
-})
-
 const updateStatus = asyncHandler(async (req, res, next) => {
-    await paymentService.updateStatusPayment(req.params.id, req.query.status)
+    await paymentService.updateStatusBasedOnMidtrans(req.body)
     return res.status(201).json({
         message: "Payment Status Updated"
     })
@@ -32,6 +25,5 @@ const deletePayment = asyncHandler(async (req, res, next) => {
 module.exports = {
     createPayment,
     deletePayment,
-    updatePayment,
     updateStatus
 }
