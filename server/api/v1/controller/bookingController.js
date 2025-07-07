@@ -2,9 +2,10 @@ const asyncHandler = require('../../../utils/asyncHandler')
 const bookingService = require('../services/bookingService')
 
 const createBooking = asyncHandler(async (req, res, next) => {
-    await bookingService.createBooking(req.user.id, req.body)
+    const booking = await bookingService.createBooking(req.user.id, req.body)
     return res.status(201).json({
-        message: 'Booking Created'
+        message: 'Booking Created',
+        data: booking._id
     })
 })
 
