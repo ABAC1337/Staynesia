@@ -10,12 +10,17 @@ const UserSchema = new Schema({
     username: {
         type: String,
         required: [true, "Username is required field"],
+        lowercase: true,
         unique: true
     },
     email: {
         type: String,
         required: [true, "Email is required field"],
         unique: true,
+    },
+    phone: {
+        type: String,
+        required: [true, "Phone number is required field!"]
     },
     hashPassword: {
         type: String,
@@ -142,11 +147,12 @@ const BookingSchema = new Schema({
     },
     duration: {
         type: Number,
+        min: [1, "Duration of booking must be above 1"],
         required: [true, "Duration is required field!"]
     },
     numGuest: {
         type: Number,
-        min: [1, "Number of review must be above 0"],
+        min: [1, "Number of guest must be above 1"],
         required: [true, "Number of guest is required field!"]
     },
     calculatePrice: {
@@ -193,6 +199,10 @@ const BookingSchema = new Schema({
 
 // Payment Schema
 const PaymentSchema = new Schema({
+    order_id: {
+        type: String,
+        required: [true, "Order id is required field!"]
+    },
     paymentMethod: {
         type: String,
         required: [true, "Payment method is required field!"]
@@ -235,6 +245,7 @@ const ReviewSchema = new Schema({
     },
     reviewText: {
         type: String,
+        minlength: [5, "Review must be above 5 characters"],
         maxlength: [500, "Review must be below 500 characters"]
     },
     userId: { 
