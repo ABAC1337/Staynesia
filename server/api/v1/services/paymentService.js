@@ -64,7 +64,8 @@ const createPayment = async (userId, data) => {
 const updateStatusBasedOnMidtrans = async (data) => {
     const { order_id, status_code, gross_amount, signature_key, settlement_time,
         transaction_status: ts, fraud_status: fs, payment_type } = data;
-    const payment = await paymentRepo.findPaymentById(data.order_id)
+
+    const payment = await paymentRepo.findPayment({ order_id: order_id })
     if (!payment)
         throw new ErrorHandler('Order Id Not Found', 404)
 
