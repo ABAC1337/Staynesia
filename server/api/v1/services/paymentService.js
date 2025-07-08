@@ -82,14 +82,14 @@ const updateStatusBasedOnMidtrans = async (data) => {
             newStatus = 'success'
     } else if (ts == 'settlement') {
         newStatus = 'success'
-    } else if (ts == 'cancel' || transactionStatus == 'deny' || transactionStatus == 'expire') {
+    } else if (ts == 'cancel' || ts == 'deny' || ts == 'expire') {
         newStatus = 'cancel'
     } else if (ts == 'pending') {
-        newStatus = pending
+        newStatus = 'pending'
     }
 
     if (!newStatus) throw new ErrorHandler('Unknown Payment Status', 404)
-    if (payment.status == newStatus) throw new ErrorHandler('Status Still The Same', 400)
+    if (payment.status == newStatus) return payment
     if (payment.status == 'confirmed')
         await bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed' })
     const paymentData = {

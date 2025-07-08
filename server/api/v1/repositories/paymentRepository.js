@@ -9,7 +9,7 @@ const findPaymentById = async (id) => {
 }
 
 const findPayment = async (data) => {
-    return await DB.Payment.find(query);
+    return await DB.Payment.find(data);
 }
 
 const updatePayment = async (id, data) => {
