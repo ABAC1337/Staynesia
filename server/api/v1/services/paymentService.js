@@ -89,6 +89,8 @@ const updateStatusBasedOnMidtrans = async (data) => {
 
     if (!newStatus) throw new ErrorHandler('Unknown Payment Status', 404)
     if (payment.status == newStatus) throw new ErrorHandler('Status Still The Same', 400)
+    if (payment.status == 'confirmed')
+        await bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed' })
     const paymentData = {
         order_id: order_id,
         paymentStatus: newStatus,
