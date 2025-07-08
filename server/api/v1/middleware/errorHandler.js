@@ -1,4 +1,4 @@
-const ErrorHandler = require('../../../utils/errorHandler')
+const ErrorHandler = require('../../../utils/errorHandler');
 
 module.exports = (error, req, res, next) => {
     let err = { ...error };
@@ -20,21 +20,25 @@ module.exports = (error, req, res, next) => {
         err = new ErrorHandler(message, 404);
     }
 
-    error.statusCode = err.statusCode || 500;
-    error.status = err.status || 'error';
+    const statusCode = err.statusCode || 500;
+    const status = err.status || 'error';
 
     if (process.env.NODE_ENV === 'production') {
-        res.status(error.statusCode).json({
-            status: error.statusCode,
+        return res.status(statusCode).json({
+            status: status,
             message: err.message
         });
-    }else if (process.env.NODE_ENV === 'development') {
-        res.status(error.statusCode).json({
-            status: error.statusCode,
+    } else if (process.env.NODE_ENV === 'development') {
+        return res.status(statusCode).json({
+            status: status,
             message: err.message,
-            stackTrace: error.stack,
-            error: error
+            stackTrace: err.stack,
+            error: err
         });
-    } else
-        res.status(500)
-}
+    } else {
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
+};
