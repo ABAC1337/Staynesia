@@ -115,7 +115,7 @@ const getPagination = async (params) => {
   optionsObj.limit = 16;
   optionsObj.skip = (currentPage - 1) * optionsObj.limit;
   optionsObj.select =
-    "title category location.city location.province price rating numRating";
+    "title category location.city location.province imgUrl price rating numRating";
   const queryObj = {
     filterObj: filterObj,
     optionsObj: optionsObj,
