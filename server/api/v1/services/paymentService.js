@@ -2,6 +2,7 @@ const paymentRepo = require('../repositories/paymentRepository')
 const bookingRepo = require('../repositories/bookingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
+const bookingService = require('./bookingService')
 const midtransClient = require('midtrans-client')
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto')
@@ -64,7 +65,7 @@ const createPayment = async (userId, data) => {
 const updateStatusBasedOnMidtrans = async (data) => {
     const { order_id, status_code, gross_amount, signature_key, settlement_time,
         transaction_status: ts, fraud_status: fs, payment_type } = data;
-
+    
     const payment = await paymentRepo.findPayment({ order_id: order_id })
     if (!payment)
         throw new ErrorHandler('Order Id Not Found', 404)
@@ -89,9 +90,21 @@ const updateStatusBasedOnMidtrans = async (data) => {
     }
 
     if (!newStatus) throw new ErrorHandler('Unknown Payment Status', 404)
-    if (payment.status == newStatus) return payment
-    if (payment.status == 'confirmed')
-        await bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed' })
+    if (payment.paymentStatus == newStatus) return payment
+    if (newStatus == 'success') {
+        console.log(payment.bookingId);
+        const booking = await bookingRepo.findBookingById(payment.bookingId)
+        const getBookedDates = await bookingService.getBookedDates(booking.listingId)
+        const available = bookingService.isBookingAvailable(getBookedDates, booking.checkIn, booking.checkOut)
+        if (!available)
+            throw new ErrorHandler("Cannot book due to booked by someone, please change the schedule", 400);
+        await bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id })
+    }
+    if (payment.status == 'cancel') {
+        const payment = await paymentRepo.deletePayment(payment._id)
+        const booking = await bookingRepo.updateBooking(payment.bookingId, { paymentId: '' })
+        return payment, booking
+    }
     const paymentData = {
         order_id: order_id,
         paymentStatus: newStatus,

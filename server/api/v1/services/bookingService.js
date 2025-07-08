@@ -101,7 +101,7 @@ const deleteBooking = async (id) => {
   return await bookingRepo.deleteBooking(id);
 };
 
-function isBookingAvailable(bookedDates, newCheckIn, newCheckOut) {
+const isBookingAvailable = (bookedDates, newCheckIn, newCheckOut) => {
   const startDate = dateConverter(newCheckIn);
   const endDate = dateConverter(newCheckOut);
   let currentDate = startDate;
@@ -159,6 +159,7 @@ const getBookingById = async (id) => {
 module.exports = {
   createBooking,
   getBookedDates,
+  isBookingAvailable,
   getBookingById,
   updateBooking,
   updateStatusBooking,
