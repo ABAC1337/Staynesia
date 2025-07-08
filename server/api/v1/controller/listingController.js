@@ -6,7 +6,7 @@ const createListing = asyncHandler(async (req, res, next) => {
   const urlImg = req.files.map((item) => item.filename);
   const parse = JSON.parse(req.body.form);
   const hostId = req.user.id;
-  await listingService.createListing(parse, urlImg, hostId);
+  await listingService.createListing(hostId, urlImg, parse);
   return res.status(201).json({
     message: "Listing Created",
   });
