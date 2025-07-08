@@ -42,7 +42,7 @@ const createPayment = async (userId, data) => {
             phone: phone,
         },
         credit_card: { secure: true },
-        callbacks: `${process.env.FRONTEND_APP_URL}/payments/midtrans/finish`
+        callbacks: `${process.env.FRONTEND_APP_URL}/bookings`
     };
 
     const paymentData = {
