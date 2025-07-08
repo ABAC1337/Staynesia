@@ -5,13 +5,13 @@ const jwt = require("../../../../utils/jwt");
 
 const createUser = async (data) => {
     if (!data) throw new ErrorHandler("Credential not found", 404);
-    const { name, username, email, password, confirmPassword, role } = data;
+    const { name, username, email, password, confirmPassword, phone, role } = data;
     console.log(password, confirmPassword);
     
     if (password !== confirmPassword)
       throw new ErrorHandler("Password Not Match", 401);
     const hashPassword = await bcrypt.hashPassword(password);
-    const queryObj = { name, username, email, hashPassword, role };
+    const queryObj = { name, username, email, phone, hashPassword, role };
     return await userRepo.createUser(queryObj);
 };
 
