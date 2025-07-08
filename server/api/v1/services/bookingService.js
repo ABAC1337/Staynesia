@@ -145,7 +145,7 @@ const getBookingById = async (id) => {
   const optionsObj = {
     populate: {
       path: "listingId",
-      select: "title category capacity imgUrl rating numRating location.province",
+      select: "title category price capacity imgUrl rating numRating location.province",
     },
   };
   const queryObj = {

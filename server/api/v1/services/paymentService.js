@@ -8,30 +8,41 @@ const crypto = require('crypto')
 
 const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
-    const { bookingId, amount, duration, title, first_name, email, phone } = data;
+    const { bookingId, duration, amount, taxAmount, feeAmount, title, price, first_name, email, phone } = data;
 
     const snap = new midtransClient.Snap({
         isProduction: false,
         serverKey: process.env.MIDTRANS_SERVER_KEY
     })
     const order_id = 'ORDER-' + uuidv4()
+    const tax_id = 'TAX-' + uuidv4()
+    const totalTax = parseInt(taxAmount) + parseInt(feeAmount)
     const parameter = {
         transaction_details: {
             order_id: order_id,
-            gross_amount: amount,
+            gross_amount: parseInt(amount),
         },
-        item_details: [{
-            id: bookingId,
-            price: amount,
-            quantity: duration,
-            name: title
-        }],
+        item_details: [
+            {
+                id: bookingId,
+                price: parseInt(price),
+                quantity: parseInt(duration),
+                name: title
+            },
+            {
+                id: tax_id,
+                price: totalTax,
+                quantity: 1,
+                name: 'Tax and Fee'
+            }
+        ],
         customer_details: {
             first_name: first_name,
             email: email,
             phone: phone,
         },
         credit_card: { secure: true },
+        callbacks: `${process.env.FRONTEND_APP_URL}/payments/midtrans/finish`
     };
 
     const paymentData = {
@@ -51,7 +62,7 @@ const createPayment = async (userId, data) => {
 }
 
 const updateStatusBasedOnMidtrans = async (data) => {
-    const { order_id, status_code, gross_amount, signature_key,
+    const { order_id, status_code, gross_amount, signature_key, settlement_time,
         transaction_status: ts, fraud_status: fs, payment_type } = data;
     const payment = await paymentRepo.findPaymentById(data.order_id)
     if (!payment)
@@ -81,7 +92,8 @@ const updateStatusBasedOnMidtrans = async (data) => {
     const paymentData = {
         order_id: order_id,
         paymentStatus: newStatus,
-        paymentMethod: payment_type
+        paymentMethod: payment_type,
+        paidAt: settlement_time
     }
     return await paymentRepo.updatePayment(payment._id, paymentData)
 }
