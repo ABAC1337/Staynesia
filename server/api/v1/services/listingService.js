@@ -2,7 +2,7 @@ const listingRepo = require("../repositories/listingRepository");
 const userRepo = require("../repositories/userRepository");
 const ErrorHandler = require("../../../utils/errorHandler");
 
-const createListing = async (id, data) => {
+const createListing = async (id, urlImg, data) => {
   if (!data) throw new ErrorHandler("Value not found", 404);
   if (!id) throw new ErrorHandler("Host not found", 404);
   const {
