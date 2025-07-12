@@ -17,10 +17,14 @@ const getGuestBooking = async (id, statusFilter) => {
                     path: "hostId",
                     select: "name"
                 }
+            },
+            populate: {
+                path: 'payments',
+                select: 'midtrans_redirect'
             }
         },
         select: 'bookings'
-    }
+    } 
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj

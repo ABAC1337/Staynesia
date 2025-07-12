@@ -148,6 +148,10 @@ const getBookingById = async (id) => {
       path: "listingId",
       select: "title category price capacity imgUrl rating numRating location.province",
     },
+    populate: {
+      path: 'paymentId',
+      select: 'midtrans_redirect'
+    }
   };
   const queryObj = {
     filterObj,
