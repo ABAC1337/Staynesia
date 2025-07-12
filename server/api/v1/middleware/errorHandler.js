@@ -33,7 +33,7 @@ module.exports = (error, req, res, next) => {
             status: error.statusCode,
             message: err.message,
             stackTrace: error.stack,
-            error: error
+            // error: error
         });
     } else
         res.status(500)
