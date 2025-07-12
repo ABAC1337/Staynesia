@@ -62,8 +62,8 @@ const updateBooking = async (id, data) => {
   const checkInDate = dateConverter(checkIn);
   const checkOutDate = dateConverter(checkOut);
   if (checkInDate >= checkOutDate) 
-    throw new ErrorHandler(`Invalid Date ${checkInDate} - ${checkOutDate}`, 400);
-  
+    throw new ErrorHandler(`Invalid Date ${checkInDate >= checkOutDate} - ${checkOutDate}`, 400);
+
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
   const bookedDates = await getBookedDates(data.listingId);
