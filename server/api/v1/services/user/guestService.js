@@ -9,7 +9,7 @@ const getGuestBooking = async (id, statusFilter) => {
         populate: {
             path: 'bookings',
             match: statusFilter ? { bookingStatus: statusFilter } : {},
-            select: 'checkIn numGuest checkOut totalPrice statusBooking',
+            select: 'checkIn numGuest checkOut totalPrice bookingStatus',
             populate: {
                 path: 'listingId',
                 select: 'title location.province imgUrl location.city',
