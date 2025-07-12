@@ -219,6 +219,14 @@ const PaymentSchema = new Schema({
     paidAt: {
         type: Date
     },
+    midtrans_redirect: {
+        type: String,
+        required: [true, "Midtrans redirect is required"]
+    },
+    midtrans_token: {
+        type: String,
+        required: [true, "Midtrans token is required"]
+    },
     bookingId: { 
         type: Schema.Types.ObjectId, 
         ref: 'Booking',
