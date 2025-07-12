@@ -45,21 +45,25 @@ const createPayment = async (userId, data) => {
         credit_card: { secure: true },
         callback_url: `${process.env.FRONTEND_APP_URL}/bookings`
     };
-
+    
+    const midtrans = await snap.createTransaction(parameter)
     const paymentData = {
         order_id: order_id,
         paymentMethod: 'Midtrans',
         amount: amount,
+        midtrans_redirect: midtrans.redirect_url,
+        midtrans_token: midtrans.token,
         bookingId: bookingId,
         userId: userId
     }
-
+    
     const payment = await paymentRepo.createPayment(paymentData)
     await Promise.all([
         bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
         userRepo.updateUser(payment.userId, { $addToSet: { payments: payment._id } })
     ])
-    return await snap.createTransaction(parameter)
+    
+    return midtrans
 }
 
 const updateStatusBasedOnMidtrans = async (data) => {
@@ -92,7 +96,6 @@ const updateStatusBasedOnMidtrans = async (data) => {
     if (!newStatus) throw new ErrorHandler('Unknown Payment Status', 404)
     if (payment.paymentStatus == newStatus) return payment
     if (newStatus == 'success') {
-        console.log(payment.bookingId);
         const booking = await bookingRepo.findBookingById(payment.bookingId)
         const getBookedDates = await bookingService.getBookedDates(booking.listingId)
         const available = bookingService.isBookingAvailable(getBookedDates, booking.checkIn, booking.checkOut)
@@ -106,7 +109,6 @@ const updateStatusBasedOnMidtrans = async (data) => {
         return payment, booking
     }
     const paymentData = {
-        order_id: order_id,
         paymentStatus: newStatus,
         paymentMethod: payment_type,
         paidAt: settlement_time

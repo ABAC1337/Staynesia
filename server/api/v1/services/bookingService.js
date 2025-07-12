@@ -6,7 +6,7 @@ const ErrorHandler = require("../../../utils/errorHandler");
 
 const createBooking = async (id, data) => {
   if (!data) throw new ErrorHandler("Value not found", 404);
-  const { checkIn, checkOut, numGuest, listingId } = data;
+  const { checkIn, checkOut, listingId } = data;
 
   const checkInDate = dateConverter(checkIn);
   const checkOutDate = dateConverter(checkOut);

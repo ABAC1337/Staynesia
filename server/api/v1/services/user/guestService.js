@@ -35,7 +35,7 @@ const getGuestPayment = async (id, statusFilter) => {
         populate: {
             path: 'payments',
             match: statusFilter ? { paymentStatus: statusFilter } : {},
-            select: 'paymentMethod paymentStatus amount paidAt bookingId',
+            select: 'paymentMethod paymentStatus amount paidAt bookingId midtrans_redirect',
             populate: {
                 path: 'bookingId',
                 select: '_id',
