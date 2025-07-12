@@ -42,6 +42,7 @@ const loginUser = async (data) => {
       name: user[0].name,
       username: user[0].username,
       email: user[0].email,
+      phone: user[0].phone,
       role: user[0].role,
     };
   return jwt.generateToken(payloadToken);
