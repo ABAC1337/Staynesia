@@ -19,7 +19,7 @@ const getGuestBooking = async (id, statusFilter) => {
                 }
             },
             populate: {
-                path: 'payments',
+                path: 'paymentId',
                 select: 'midtrans_redirect'
             }
         },
