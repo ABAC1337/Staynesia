@@ -34,7 +34,6 @@ const createBooking = async (id, data) => {
     checkIn: checkInDate,
     checkOut: checkOutDate,
     duration: convertDuration,
-    numGuest: parseInt(numGuest),
     calculatePrice: calculatePrice,
     taxAmount: taxAmount,
     feeAmount: feeAmount,

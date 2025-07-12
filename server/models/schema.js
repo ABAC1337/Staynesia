@@ -150,11 +150,6 @@ const BookingSchema = new Schema({
         min: [1, "Duration of booking must be above 1"],
         required: [true, "Duration is required field!"]
     },
-    numGuest: {
-        type: Number,
-        min: [1, "Number of guest must be above 1"],
-        required: [true, "Number of guest is required field!"]
-    },
     calculatePrice: {
         type: Number,
         min: [0, 'Price must be greater than or equal 0'],
