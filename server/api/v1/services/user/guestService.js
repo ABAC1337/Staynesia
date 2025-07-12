@@ -10,21 +10,23 @@ const getGuestBooking = async (id, statusFilter) => {
             path: 'bookings',
             match: statusFilter ? { bookingStatus: statusFilter } : {},
             select: 'checkIn numGuest checkOut totalPrice bookingStatus',
-            populate: {
-                path: 'listingId',
-                select: 'title location.province imgUrl location.city',
-                populate: {
-                    path: "hostId",
-                    select: "name"
+            populate: [
+                {
+                    path: 'listingId',
+                    select: 'title location.province imgUrl location.city',
+                    populate: {
+                        path: "hostId",
+                        select: "name"
+                    }
+                },
+                {
+                    path: 'paymentId',
+                    select: 'midtrans_redirect'
                 }
-            },
-            populate: {
-                path: 'paymentId',
-                select: 'midtrans_redirect'
-            }
+            ]
         },
         select: 'bookings'
-    } 
+    }
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
