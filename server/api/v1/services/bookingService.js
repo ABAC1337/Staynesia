@@ -58,11 +58,11 @@ const createBooking = async (id, data) => {
 const updateBooking = async (id, data) => {
   if (!id) throw new ErrorHandler("Booking Not Found", 404);
   const { checkIn, checkOut } = data;
-  
+
   const checkInDate = dateConverter(checkIn);
   const checkOutDate = dateConverter(checkOut);
-  if (checkInDate >= checkOutDate) 
-throw new ErrorHandler(`Invalid Date ${checkInDate} - ${checkOutDate} : ${checkInDate >= checkOutDate}`, 400);
+  if (checkInDate >= checkOutDate)
+    throw new ErrorHandler(`Invalid Date ${checkInDate} - ${checkOutDate} : ${checkInDate >= checkOutDate}`, 400);
 
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
@@ -144,14 +144,16 @@ const getBookingById = async (id) => {
   if (!id) throw new ErrorHandler("Booking Not Found", 404);
   const filterObj = { _id: id };
   const optionsObj = {
-    populate: {
-      path: "listingId",
-      select: "title category price capacity imgUrl rating numRating location.province",
-    },
-    populate: {
-      path: 'paymentId',
-      select: 'midtrans_redirect'
-    }
+    populate: [
+      {
+        path: "listingId",
+        select: "title category price capacity imgUrl rating numRating location.province",
+      },
+      {
+        path: 'paymentId',
+        select: 'midtrans_redirect'
+      }
+    ]
   };
   const queryObj = {
     filterObj,
