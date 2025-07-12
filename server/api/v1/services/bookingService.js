@@ -55,8 +55,8 @@ const createBooking = async (id, data) => {
   return booking;
 };
 
-const updateBooking = async (data) => {
-  if (!data.id) throw new ErrorHandler("Booking Not Found", 404);
+const updateBooking = async (id, data) => {
+  if (!id) throw new ErrorHandler("Booking Not Found", 404);
   const { checkIn, checkOut, numGuest } = data;
   if (dateConverter(checkIn) >= dateConverter(checkOut))
     throw new ErrorHandler("Invalid Date", 400);
@@ -79,7 +79,7 @@ const updateBooking = async (data) => {
     checkOut,
     numGuest
   }
-  return await bookingRepo.updateBooking(data.id, bookingData);
+  return await bookingRepo.updateBooking(id, bookingData);
 };
 
 const updateStatusBooking = async (id, statusQuery) => {
