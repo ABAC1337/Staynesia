@@ -57,11 +57,15 @@ const createBooking = async (id, data) => {
 
 const updateBooking = async (id, data) => {
   if (!id) throw new ErrorHandler("Booking Not Found", 404);
-  const { checkIn, checkOut, numGuest } = data;
-  if (dateConverter(checkIn) >= dateConverter(checkOut))
-    throw new ErrorHandler("Invalid Date", 400);
+  const { checkIn, checkOut } = data;
   
-  const listing = await listingRepo.findById(data.listingId);
+  const checkInDate = dateConverter(checkIn);
+  const checkOutDate = dateConverter(checkOut);
+  if (checkInDate >= checkOutDate) 
+    throw new ErrorHandler(`Invalid Date ${checkInDate} - ${checkOutDate}`, 400);
+  
+  const durationMs = checkOutDate - checkInDate;
+  const convertDuration = durationMs / (1000 * 60 * 60 * 24);
   const bookedDates = await getBookedDates(data.listingId);
   const available = isBookingAvailable(
     bookedDates,
@@ -69,15 +73,13 @@ const updateBooking = async (id, data) => {
     data.checkOut
   );
 
-  if (numGuest > listing.capacity)
-    throw new ErrorHandler(`Number of guest must be ${listing.capacity} or below`, 400);
   if (!available)
     throw new ErrorHandler("Cannot book due to booked by someone", 400);
 
   const bookingData = {
-    checkIn,
-    checkOut,
-    numGuest
+    checkIn: checkIn,
+    checkOut: checkOut,
+    duration: convertDuration
   }
   return await bookingRepo.updateBooking(id, bookingData);
 };
