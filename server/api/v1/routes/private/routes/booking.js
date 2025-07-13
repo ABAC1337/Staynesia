@@ -6,7 +6,7 @@ const router = express.Router()
 router.post('/create', bookingController.createBooking)
 router.post('/update-status', bookingController.updateStatus)
 router.route('/:id')
-    .get(cacheHandler.noCache, bookingController.getBookingId)
+    .get(cacheHandler, bookingController.getBookingId)
     .patch(bookingController.updateBooking)
     .delete(bookingController.deleteBooking)
 
