@@ -10,4 +10,4 @@ router.route('/:id')
     .patch(bookingController.updateBooking)
     .delete(bookingController.deleteBooking)
 
-module.exports = routerƒƒ
+module.exports = router
