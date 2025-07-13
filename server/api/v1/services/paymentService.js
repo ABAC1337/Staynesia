@@ -104,9 +104,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
         await bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id })
     }
     if (payment.status == 'cancel') {
-        const payment = await paymentRepo.deletePayment(payment._id)
-        const booking = await bookingRepo.updateBooking(payment.bookingId, { paymentId: '' })
-        return payment, booking
+        await bookingRepo.updateBooking(payment.bookingId, { paymentId: '' })
     }
     const paymentData = {
         paymentStatus: newStatus,
