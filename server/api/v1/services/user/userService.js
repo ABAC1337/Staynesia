@@ -4,99 +4,105 @@ const bcrypt = require("../../../../utils/bcrypt");
 const jwt = require("../../../../utils/jwt");
 
 const createUser = async (data) => {
-    if (!data) throw new ErrorHandler("Credential not found", 404);
-    const { name, username, email, password, confirmPassword, phone, role } = data;
-    console.log(password, confirmPassword);
-    
-    if (password !== confirmPassword)
-      throw new ErrorHandler("Password Not Match", 401);
-    const hashPassword = await bcrypt.hashPassword(password);
-    const queryObj = { name, username, email, phone, hashPassword, role };
-    return await userRepo.createUser(queryObj);
+  if (!data) throw new ErrorHandler("Credential not found", 404);
+  const { name, username, email, password, confirmPassword, phone, role } = data;
+  console.log(password, confirmPassword);
+
+  if (password !== confirmPassword)
+    throw new ErrorHandler("Password Not Match", 401);
+  const hashPassword = await bcrypt.hashPassword(password);
+  const queryObj = { name, username, email, phone, hashPassword, role };
+  return await userRepo.createUser(queryObj);
 };
 
 const loginUser = async (data) => {
-    if (!data) throw new ErrorHandler("Credential not found", 404);
-    const queryObj = {}
-    const filterObj = {
-      $or: [{ email: data.field1 }, { username: data.field1 }],
-    };
-    const optionsObj = {
-      select: '-listings -bookings -wishlist -reviews -payments'
-    }
-    queryObj.filterObj = filterObj
-    queryObj.optionsObj = optionsObj
-    const user = await userRepo.findUser(queryObj);
+  if (!data) throw new ErrorHandler("Credential not found", 404);
+  const queryObj = {}
+  const filterObj = {
+    $or: [{ email: data.field1 }, { username: data.field1 }],
+  };
+  const optionsObj = {
+    select: '-listings -bookings -wishlist -reviews -payments'
+  }
+  queryObj.filterObj = filterObj
+  queryObj.optionsObj = optionsObj
+  const user = await userRepo.findUser(queryObj);
 
-    if (!user[0] || user[1])
-      throw new ErrorHandler("Username or email not found", 404);
-    // Checking if password match
-    const isMatch = await bcrypt.comparePassword(
-      data.field2,
-      user[0].hashPassword
-    );
-    if (!isMatch) throw new ErrorHandler("Password incorrect", 404);
-    // Generate token
-    const payloadToken = {
-      id: user[0]._id,
-      name: user[0].name,
-      username: user[0].username,
-      email: user[0].email,
-      phone: user[0].phone,
-      imgUrl: user[0].imageUrl,
-      role: user[0].role,
-    };
+  if (!user[0] || user[1])
+    throw new ErrorHandler("Username or email not found", 404);
+  // Checking if password match
+  const isMatch = await bcrypt.comparePassword(
+    data.field2,
+    user[0].hashPassword
+  );
+  if (!isMatch) throw new ErrorHandler("Password incorrect", 404);
+  // Generate token
+  const payloadToken = {
+    id: user[0]._id,
+    name: user[0].name,
+    username: user[0].username,
+    email: user[0].email,
+    phone: user[0].phone,
+    imgUrl: user[0].imageUrl,
+    role: user[0].role,
+  };
   return jwt.generateToken(payloadToken);
 };
 
 const deleteAccount = async (id) => {
-    if (!id) throw new ErrorHandler("Account not found", 404);
-    return await userRepo.deleteUser(id);
+  if (!id) throw new ErrorHandler("Account not found", 404);
+  return await userRepo.deleteUser(id);
 };
 
 const updateProfile = async (id, data) => {
-    if (!id) throw new ErrorHandler("Account not found", 404);
-    const { username, name, email, password } = data;
-    queryObj = {};
+  if (!id) throw new ErrorHandler("Account not found", 404);
+  const { username, name, email, phone, password } = data;
+  queryObj = {};
 
-    if (username || !username == '') 
-      queryObj.username = username;
-    if (name || !name == '') 
-      queryObj.name = name;
-    if (email || !email == '') 
-      queryObj.email = email;
+  if (username || !username == '')
+    queryObj.username = username;
+  if (name || !name == '')
+    queryObj.name = name;
+  if (email || !email == '')
+    queryObj.email = email;
+  if (phone || !phone == '')
+    queryObj.phone = phone
 
-    const user = await userRepo.findUserById(id);
-    const isMatch = await bcrypt.comparePassword(password, user.hashPassword);
-    if (!isMatch) 
-      throw new ErrorHandler("Password incorrect", 401);
+  const user = await userRepo.findUserById(id);
+  const isMatch = await bcrypt.comparePassword(password, user.hashPassword);
+  if (!isMatch)
+    throw new ErrorHandler("Password incorrect", 401);
 
-    const update =  await userRepo.updateUser(id, queryObj);
-    const payloadToken = {
-      id: update._id,
-      name: update.name,
-      username: update.username,
-      email: update.email,
-      phone: update.phone,
-      imgUrl: update.imageUrl,
-      role: update.role,
-    };
-    return jwt.generateToken(payloadToken)
+  const update = await userRepo.updateUser(id, queryObj);
+  const payloadToken = {
+    id: update._id,
+    name: update.name,
+    username: update.username,
+    email: update.email,
+    phone: update.phone,
+    imgUrl: update.imageUrl,
+    role: update.role,
+  };
+  return jwt.generateToken(payloadToken)
 };
 
+const forgotPassword = async () => {
+
+}
+
 const resetPassword = async (id, data) => {
-    if (!id) throw new ErrorHandler("Account not found", 404);
-    if (!data) throw new ErrorHandler("Field was empty", 404);
-    const user = await userRepo.findUserById(id);
-    const validation = await bcrypt.comparePassword(
-      data.oldPassword,
-      user.hashPassword
-    );
-    if (!validation) throw new ErrorHandler("Password incorrect", 404);
-    if (data.newPassword !== data.confirmPassword)
-      throw new ErrorHandler("Password not match", 400);
-    const hashed = await bcrypt.hashPassword(data.newPassword);
-    return await userRepo.updateUser(id, { hashPassword: hashed });
+  if (!id) throw new ErrorHandler("Account not found", 404);
+  if (!data) throw new ErrorHandler("Field was empty", 404);
+  const user = await userRepo.findUserById(id);
+  const validation = await bcrypt.comparePassword(
+    data.oldPassword,
+    user.hashPassword
+  );
+  if (!validation) throw new ErrorHandler("Password incorrect", 404);
+  if (data.newPassword !== data.confirmPassword)
+    throw new ErrorHandler("Password not match", 400);
+  const hashed = await bcrypt.hashPassword(data.newPassword);
+  return await userRepo.updateUser(id, { hashPassword: hashed });
 };
 
 module.exports = {
