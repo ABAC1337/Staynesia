@@ -86,7 +86,7 @@ const deleteListing = async (id) => {
 };
 
 const getPagination = async (params) => {
-  const { province, city, category, facility, sort, page, capacity } = params;
+  const { province, city, category, priceMin, priceMax, facility, sort, page, capacity } = params;
 
   const optionsObj = {};
   const filterObj = {};
@@ -95,7 +95,10 @@ const getPagination = async (params) => {
     if (province) filterObj["location.province"] = province;
     if (city) filterObj["location.city"] = city;
   }
-  if (category) filterObj.category = category;
+  if (priceMin && priceMax)
+    filterObj.price = { $gte: priceMin, $lte: priceMax }
+  if (category) 
+    filterObj.category = category;
   if (facility) {
     const facilities = facility.split(",").map((f) => f.trim());
     filterObj.facility = { $all: facilities };
@@ -103,11 +106,7 @@ const getPagination = async (params) => {
   if (capacity) filterObj.capacity = { $gte: capacity };
   filterObj.isActive = true;
   if (sort) {
-    console.log(sort);
-
     const sortBy = String(sort).split(",").join(" ");
-    console.log(sortBy);
-
     optionsObj.sort = sortBy ? sortBy : "createdAt";
   }
   // Pagination Logic
