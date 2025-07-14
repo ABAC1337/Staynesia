@@ -2,6 +2,7 @@ const userRepo = require("../../repositories/userRepository");
 const ErrorHandler = require("../../../../utils/errorHandler");
 const bcrypt = require("../../../../utils/bcrypt");
 const jwt = require("../../../../utils/jwt");
+const mailer = require("../../../../utils/mailer")
 
 const createUser = async (data) => {
   if (!data) throw new ErrorHandler("Credential not found", 404);
@@ -98,14 +99,15 @@ function generateAlphanumeric(length) {
 }
 
 const forgotPasswordToken = async (email) => {
-  if (!email || !req.user.email) throw new ErrorHandler("Input was empty")
+  if (!email) throw new ErrorHandler("Input was empty")
 
-  const filterObj = { email: email || req.user.email }
+  const filterObj = { email: email }
   const queryObj = { filterObj }
   const user = await userRepo.findUser(queryObj)
   if (!user[0]) throw new ErrorHandler("Email Not Found", 404)
 
   const OTP = generateAlphanumeric(7)
+  await mailer.sendEmail(email, "Confirmation Reset Password", `nih otpnya yh ${OTP}`)
   const payload = {
     secret: OTP,
     id: user[0]._id
@@ -118,7 +120,7 @@ const verifyOTP = async (token, data) => {
   if (!data) throw new ErrorHandler('Input was empty')
 
   if (token.secret !== data)
-    throw new ErrorHandler('OTP incorrect')
+    throw new ErrorHandler('OTP incorrect', 403)
   return true
 }
 
@@ -134,7 +136,7 @@ const forgotPassword = async (token, data) => {
   if (data.newPassword !== data.confirmPassword)
     throw new ErrorHandler('Password not match')
   const hashed = await bcrypt.hashPassword(data.newPassword)
-  return 
+  return await userRepo.updateUser(user._id, { hashPassword: hashed })
 }
 
 const resetPassword = async (id, data) => {
@@ -158,4 +160,7 @@ module.exports = {
   updateProfile,
   deleteAccount,
   resetPassword,
+  forgotPasswordToken,
+  verifyOTP,
+  forgotPassword
 };

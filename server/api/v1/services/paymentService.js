@@ -6,6 +6,7 @@ const bookingService = require('./bookingService')
 const midtransClient = require('midtrans-client')
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto')
+const mailer = require('../../../utils/mailer')
 
 const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
@@ -97,11 +98,13 @@ const updateStatusBasedOnMidtrans = async (data) => {
     if (payment.paymentStatus == newStatus) return payment
     if (newStatus == 'success') {
         const booking = await bookingRepo.findBookingById(payment.bookingId)
+        const user = await userRepo.findUserById(payment.userId)
         const getBookedDates = await bookingService.getBookedDates(booking.listingId)
         const available = bookingService.isBookingAvailable(getBookedDates, booking.checkIn, booking.checkOut)
         if (!available)
             throw new ErrorHandler("Cannot book due to booked by someone, please change the schedule", 400);
         await bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id })
+        await mailer.sendEmail(user.email, "Payment Success", "Payment dah selesai yh")
     }
     if (payment.status == 'cancel') {
         await bookingRepo.updateBooking(payment.bookingId, { paymentId: '' })
