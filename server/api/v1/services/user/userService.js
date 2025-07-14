@@ -43,6 +43,7 @@ const loginUser = async (data) => {
       username: user[0].username,
       email: user[0].email,
       phone: user[0].phone,
+      imgUrl: user[0].imageUrl,
       role: user[0].role,
     };
   return jwt.generateToken(payloadToken);
@@ -69,7 +70,7 @@ const updateProfile = async (id, data) => {
     const isMatch = await bcrypt.comparePassword(password, user.hashPassword);
     if (!isMatch) 
       throw new ErrorHandler("Password incorrect", 401);
-    
+
     const update =  await userRepo.updateUser(id, queryObj);
     const payloadToken = {
       id: update._id,
@@ -77,6 +78,7 @@ const updateProfile = async (id, data) => {
       username: update.username,
       email: update.email,
       phone: update.phone,
+      imgUrl: update.imageUrl,
       role: update.role,
     };
     return jwt.generateToken(payloadToken)
@@ -96,8 +98,6 @@ const resetPassword = async (id, data) => {
     const hashed = await bcrypt.hashPassword(data.newPassword);
     return await userRepo.updateUser(id, { hashPassword: hashed });
 };
-
-
 
 module.exports = {
   createUser,
