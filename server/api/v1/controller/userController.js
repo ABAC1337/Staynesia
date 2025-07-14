@@ -17,7 +17,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 })
 
 const deleteAccount = asyncHandler(async (req, res, next) => {
-    await userService.deleteAccount(req.user.id)
+    await userService.deleteAccount(req.user.id, req.body)
     return res.status(200).json({
         message: 'Account Deleted'
     })

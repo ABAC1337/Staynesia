@@ -50,8 +50,12 @@ const loginUser = async (data) => {
   return jwt.generateToken(payloadToken);
 };
 
-const deleteAccount = async (id) => {
+const deleteAccount = async (id, data) => {
   if (!id) throw new ErrorHandler("Account not found", 404);
+  const user = await userRepo.findUserById(id)
+  const compare = await bcrypt.comparePassword(data.password, user.hashPassword)
+  if (!compare)
+    throw new ErrorHandler('Password Incorrect', 403)
   return await userRepo.deleteUser(id);
 };
 
@@ -98,10 +102,10 @@ function generateAlphanumeric(length) {
   return result;
 }
 
-const forgotPasswordToken = async (email) => {
-  if (!email) throw new ErrorHandler("Input was empty")
+const forgotPasswordToken = async (data) => {
+  if (!data) throw new ErrorHandler("Input was empty")
 
-  const filterObj = { email: email }
+  const filterObj = { email: data.email }
   const queryObj = { filterObj }
   const user = await userRepo.findUser(queryObj)
   if (!user[0]) throw new ErrorHandler("Email Not Found", 404)
