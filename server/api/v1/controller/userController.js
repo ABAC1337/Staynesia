@@ -2,9 +2,10 @@ const asyncHandler = require('../../../utils/asyncHandler')
 const userService = require('../services/user/userService')
 
 const updateProfile = asyncHandler(async (req, res, next) => {
-    await userService.updateProfile(req.user.id, req.body)
+    const user = await userService.updateProfile(req.user.id, req.body)
     return res.status(200).json({
-        message: 'Account Updated'
+        message: 'Account Updated',
+        token: user
     })
 })
 

@@ -53,19 +53,33 @@ const deleteAccount = async (id) => {
     return await userRepo.deleteUser(id);
 };
 
-const updateProfile = async (data) => {
-    if (!data || !data.id) throw new ErrorHandler("Account not found", 404);
-    const { id, username, name, email, password } = data;
+const updateProfile = async (id, data) => {
+    if (!id) throw new ErrorHandler("Account not found", 404);
+    const { username, name, email, password } = data;
     queryObj = {};
 
-    if (username) queryObj.username = username;
-    if (name) queryObj.name = name;
-    if (email) queryObj.email = email;
+    if (username || !username == '') 
+      queryObj.username = username;
+    if (name || !name == '') 
+      queryObj.name = name;
+    if (email || !email == '') 
+      queryObj.email = email;
 
     const user = await userRepo.findUserById(id);
     const isMatch = await bcrypt.comparePassword(password, user.hashPassword);
-    if (!isMatch) throw new ErrorHandler("Password incorrect", 401);
-    return await userRepo.updateUser(id, queryObj);
+    if (!isMatch) 
+      throw new ErrorHandler("Password incorrect", 401);
+    
+    const update =  await userRepo.updateUser(id, queryObj);
+    const payloadToken = {
+      id: update._id,
+      name: update.name,
+      username: update.username,
+      email: update.email,
+      phone: update.phone,
+      role: update.role,
+    };
+    return jwt.generateToken(payloadToken)
 };
 
 const resetPassword = async (id, data) => {
