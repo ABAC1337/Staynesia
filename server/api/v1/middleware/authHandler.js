@@ -14,6 +14,16 @@ const authToken = asyncHandler(async (req, res, next) => {
   next();
 });
 
+const authForgotPassword = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const getToken = authHeader && authHeader.split(" ")[1];
+
+  if (getToken == null) throw new ErrorHandler("Failed to get token", 403);
+  const decoded = jwtUtils.verifyToken(getToken, process.env.JWT_SECRET);
+  if (!decoded) throw ErrorHandler("Unauthorized", 403);
+  req.reset = decoded
+})
+
 const authRole = (...allowedRoles) => {
   return asyncHandler(async (req, res, next) => {
     const role = req.user?.role;
@@ -26,4 +36,4 @@ const authRole = (...allowedRoles) => {
   });
 };
 
-module.exports = { authToken, authRole };
+module.exports = { authToken, authForgotPassword, authRole };
