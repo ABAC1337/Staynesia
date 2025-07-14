@@ -56,7 +56,8 @@ const deleteAccount = async (id) => {
 
 const updateProfile = async (id, data) => {
   if (!id) throw new ErrorHandler("Account not found", 404);
-  const { username, name, email, phone, password } = data;
+  console.log(data);
+  const { name, username, email, phone, password } = data;
   queryObj = {};
 
   if (username || !username == '')
@@ -73,21 +74,67 @@ const updateProfile = async (id, data) => {
   if (!isMatch)
     throw new ErrorHandler("Password incorrect", 401);
 
-  const update = await userRepo.updateUser(id, queryObj);
+  await userRepo.updateUser(id, queryObj);
+  const updated = await userRepo.findUserById(id)
   const payloadToken = {
-    id: update._id,
-    name: update.name,
-    username: update.username,
-    email: update.email,
-    phone: update.phone,
-    imgUrl: update.imageUrl,
-    role: update.role,
+    id: updated._id,
+    name: updated.name,
+    username: updated.username,
+    email: updated.email,
+    phone: updated.phone,
+    imgUrl: updated.imageUrl,
+    role: updated.role,
   };
   return jwt.generateToken(payloadToken)
 };
 
-const forgotPassword = async () => {
+function generateAlphanumeric(length) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
 
+const forgotPasswordToken = async (email) => {
+  if (!email || !req.user.email) throw new ErrorHandler("Input was empty")
+
+  const filterObj = { email: email || req.user.email }
+  const queryObj = { filterObj }
+  const user = await userRepo.findUser(queryObj)
+  if (!user[0]) throw new ErrorHandler("Email Not Found", 404)
+
+  const OTP = generateAlphanumeric(7)
+  const payload = {
+    secret: OTP,
+    id: user[0]._id
+  }
+  return jwt.generateToken(payload)
+}
+
+const verifyOTP = async (token, data) => {
+  if (!token) throw new ErrorHandler('Token was empty', 404)
+  if (!data) throw new ErrorHandler('Input was empty')
+
+  if (token.secret !== data)
+    throw new ErrorHandler('OTP incorrect')
+  return true
+}
+
+const forgotPassword = async (token, data) => {
+  if (!data) throw new ErrorHandler('Input Was Empty', 404)
+  if (!token) throw new ErrorHandler('Token was empty')
+  const user = await userRepo.findUserById(token.id)
+  const compare = await bcrypt.comparePassword(
+    data.oldPassword,
+    user.hashPassword
+  )
+  if (!compare) throw new ErrorHandler('Password wrong', 401)
+  if (data.newPassword !== data.confirmPassword)
+    throw new ErrorHandler('Password not match')
+  const hashed = await bcrypt.hashPassword(data.newPassword)
+  return 
 }
 
 const resetPassword = async (id, data) => {
