@@ -89,7 +89,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
     } else if (ts == 'settlement') {
         newStatus = 'success'
     } else if (ts == 'cancel' || ts == 'deny' || ts == 'expire') {
-        newStatus = 'cancel'
+        newStatus = 'canceled'
     } else if (ts == 'pending') {
         newStatus = 'pending'
     }
