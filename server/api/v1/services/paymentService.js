@@ -3,19 +3,14 @@ const bookingRepo = require('../repositories/bookingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 const bookingService = require('./bookingService')
-const midtransClient = require('midtrans-client')
+const midtrans = require('../../../config/midtrans')
 const { v4: uuidv4 } = require('uuid');
-const crypto = require('crypto')
 const mailer = require('../../../utils/mailer')
 
 const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
     const { bookingId, duration, amount, taxAmount, feeAmount, title, price, first_name, email, phone } = data;
 
-    const snap = new midtransClient.Snap({
-        isProduction: false,
-        serverKey: process.env.MIDTRANS_SERVER_KEY
-    })
     const order_id = 'ORDER-' + uuidv4()
     const tax_id = 'TAX-' + uuidv4()
     const totalTax = parseInt(taxAmount) + parseInt(feeAmount)
@@ -47,13 +42,13 @@ const createPayment = async (userId, data) => {
         callback_url: `${process.env.FRONTEND_APP_URL}/bookings`
     };
     
-    const midtrans = await snap.createTransaction(parameter)
+    const snap = await midtrans.snap.createTransaction(parameter)
     const paymentData = {
         order_id: order_id,
         paymentMethod: 'Midtrans',
         amount: amount,
-        midtrans_redirect: midtrans.redirect_url,
-        midtrans_token: midtrans.token,
+        midtrans_redirect: snap.redirect_url,
+        midtrans_token: snap.token,
         bookingId: bookingId,
         userId: userId
     }
@@ -70,17 +65,12 @@ const createPayment = async (userId, data) => {
 const updateStatusBasedOnMidtrans = async (data) => {
     const { order_id, status_code, gross_amount, signature_key, settlement_time,
         transaction_status: ts, fraud_status: fs, payment_type } = data;
-    
-    const payment = await paymentRepo.findPayment({ order_id: order_id })
+        
+    const notification = await midtrans.core.transaction.notification(data)
+    const payment = await paymentRepo.findPayment({ order_id: notification.order_id })
+
     if (!payment)
         throw new ErrorHandler('Order Id Not Found', 404)
-
-    const hash = crypto.createHash('sha512')
-        .update(`${order_id}${status_code}${gross_amount}${process.env.MIDTRANS_SERVER_KEY}`)
-        .digest('hex');
-
-    if (signature_key !== hash)
-        throw new ErrorHandler('Invalid Signature Key', 400)
 
     let newStatus;
     if (ts == 'capture') {
