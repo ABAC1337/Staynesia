@@ -7,7 +7,6 @@ const createReview = async (data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
     const review = await reviewRepo.createReview(data)
     const calculate = await reviewRepo.calculationReview(review.listingId)
-    console.log(calculate);
     const { rating, numRating } = calculate[0]
     const update = {
         $addToSet: { reviews: review._id, },

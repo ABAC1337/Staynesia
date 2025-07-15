@@ -7,7 +7,6 @@ const mailer = require("../../../../utils/mailer")
 const createUser = async (data) => {
   if (!data) throw new ErrorHandler("Credential not found", 404);
   const { name, username, email, password, confirmPassword, phone, role } = data;
-  console.log(password, confirmPassword);
 
   if (password !== confirmPassword)
     throw new ErrorHandler("Password Not Match", 401);
@@ -61,7 +60,6 @@ const deleteAccount = async (id, data) => {
 
 const updateProfile = async (id, data) => {
   if (!id) throw new ErrorHandler("Account not found", 404);
-  console.log(data);
   const { name, username, email, phone, password } = data;
   queryObj = {};
 
