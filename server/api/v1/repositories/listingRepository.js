@@ -25,6 +25,10 @@ const findListing = async (queryObj) => {
   return await query;
 };
 
+const countListing = async (filterObj) => {
+  return await DB.Listing.countDocuments(filterObj)
+}
+
 const updateListing = async (id, data) => {
   return await DB.Listing.findByIdAndUpdate(id, data, { runValidation: true });
 };
@@ -36,6 +40,7 @@ const deleteListing = async (id) => {
 module.exports = {
   createListing,
   findListing,
+  countListing,
   updateListing,
   deleteListing,
   findById,

@@ -28,10 +28,11 @@ const deleteListing = asyncHandler(async (req, res, next) => {
 
 const pagination = asyncHandler(async (req, res, next) => {
   const listing = await listingService.getPagination(req.query);
+  const sortAndFilterData = await listingService.getFilterPagination()
   return res.status(200).json({
     message: "Success",
-    length: listing.length,
-    data: listing,
+    pagination: listing,
+    sortAndFilterData: sortAndFilterData
   });
 });
 
@@ -54,14 +55,6 @@ const getListingId = asyncHandler(async (req, res, next) => {
   });
 });
 
-const getFilterPagination = asyncHandler(async (req, res, next) => {
-  const listing = await listingService.getFilterPagination()
-  return res.status(200).json({
-    message: "Success",
-    data: listing
-  })
-})
-
 module.exports = {
   createListing,
   updateListing,
@@ -69,5 +62,4 @@ module.exports = {
   pagination,
   getListingId,
   getTopRated,
-  getFilterPagination
 };

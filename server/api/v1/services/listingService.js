@@ -86,7 +86,7 @@ const deleteListing = async (id) => {
 };
 
 const getPagination = async (params) => {
-  const { province, city, category, priceMin, priceMax, facility, sort, page, capacity } = params;
+  const { province, city, category, capacity, priceMin, priceMax, facility, sort, page, limit } = params;
 
   const optionsObj = {};
   const filterObj = {};
@@ -111,7 +111,7 @@ const getPagination = async (params) => {
   }
   // Pagination Logic
   const currentPage = parseInt(page) * 1 || 1;
-  optionsObj.limit = 16;
+  optionsObj.limit = limit;
   optionsObj.skip = (currentPage - 1) * optionsObj.limit;
   optionsObj.select =
     "title category location.city location.province imgUrl price rating numRating";
@@ -120,8 +120,14 @@ const getPagination = async (params) => {
     optionsObj: optionsObj,
   };
   const listing = await listingRepo.findListing(queryObj);
-
-  return listing;
+  const totalListing = await listingRepo.countListing(filterObj)
+  const totalPage = Math.ceil(totalListing / optionsObj.limit)
+  return {
+    currentPage: currentPage,
+    totalPag: totalPage,
+    data: listing,
+    total: totalListing
+  };
 };
 
 const getFilterPagination = async () => {
@@ -130,7 +136,7 @@ const getFilterPagination = async () => {
   }
   const queryObj = { optionsObj }
   const listings = await listingRepo.findListing(queryObj)
-  
+
   const categorySet = new Set();
   const facilitySet = new Set();
   let maxPrice = 0;
@@ -145,7 +151,7 @@ const getFilterPagination = async () => {
 
     if (Array.isArray(listing.facility)) {
       listing.facility.forEach(fac => facilitySet.add(fac));
-    } else if (listing.facility ) {
+    } else if (listing.facility) {
       facilitySet.add(listing.facility);
     }
 
