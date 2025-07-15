@@ -1,8 +1,6 @@
 const bcrypt = require('bcrypt')
 
-const hashPassword = async (password) => {
-    console.log(password);
-    
+const hashPassword = async (password) => {   
     const saltRound = 10
     return await bcrypt.hash(password, saltRound)
 }
