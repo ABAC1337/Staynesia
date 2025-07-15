@@ -97,7 +97,7 @@ const getPagination = async (params) => {
   }
   if (priceMin && priceMax)
     filterObj.price = { $gte: priceMin, $lte: priceMax }
-  if (category) 
+  if (category)
     filterObj.category = category;
   if (facility) {
     const facilities = facility.split(",").map((f) => f.trim());
@@ -123,6 +123,45 @@ const getPagination = async (params) => {
 
   return listing;
 };
+
+const getFilterPagination = async () => {
+  const optionsObj = {
+    select: '-_id category facility price'
+  }
+  const queryObj = { optionsObj }
+  const listings = await listingRepo.findListing(queryObj)
+  
+  const categorySet = new Set();
+  const facilitySet = new Set();
+  let maxPrice = 0;
+  let minPrice = Infinity;
+
+  listings.forEach((listing) => {
+    if (Array.isArray(listing.category)) {
+      listing.category.forEach(cat => categorySet.add(cat));
+    } else if (listing.category) {
+      categorySet.add(listing.category);
+    }
+
+    if (Array.isArray(listing.facility)) {
+      listing.facility.forEach(fac => facilitySet.add(fac));
+    } else if (listing.facility ) {
+      facilitySet.add(listing.facility);
+    }
+
+    if (typeof listing.price === 'number') {
+      if (listing.price > maxPrice) maxPrice = listing.price;
+      if (listing.price < minPrice) minPrice = listing.price;
+    }
+  });
+
+  return {
+    categories: Array.from(categorySet),
+    facilities: Array.from(facilitySet),
+    maxPrice,
+    minPrice
+  };
+}
 
 const getTopRated = async () => {
   const optionsObj = {
@@ -170,5 +209,6 @@ module.exports = {
   deleteListing,
   getPagination,
   getListingId,
-  getTopRated
+  getTopRated,
+  getFilterPagination
 };

@@ -54,11 +54,20 @@ const getListingId = asyncHandler(async (req, res, next) => {
   });
 });
 
+const getFilterPagination = asyncHandler(async (req, res, next) => {
+  const listing = await listingService.getFilterPagination()
+  return res.status(200).json({
+    message: "Success",
+    data: listing
+  })
+})
+
 module.exports = {
   createListing,
   updateListing,
   deleteListing,
   pagination,
   getListingId,
-  getTopRated
+  getTopRated,
+  getFilterPagination
 };
