@@ -97,13 +97,16 @@ const getPagination = async (params) => {
   }
   if (priceMin && priceMax)
     filterObj.price = { $gte: priceMin, $lte: priceMax }
-  if (category)
-    filterObj.category = category;
+  if (category) {
+    const categories = category.split(",").map((c) => c.trim());
+    filterObj.category = categories;
+  }
   if (facility) {
     const facilities = facility.split(",").map((f) => f.trim());
     filterObj.facility = { $all: facilities };
   }
-  if (capacity) filterObj.capacity = { $gte: capacity };
+  if (capacity) 
+    filterObj.capacity = { $gte: capacity };
   filterObj.isActive = true;
   if (sort) {
     const sortBy = String(sort).split(",").join(" ");
