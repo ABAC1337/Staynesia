@@ -61,7 +61,7 @@ const createPayment = async (userId, data) => {
         userRepo.updateUser(payment.userId, { $addToSet: { payments: payment._id } })
     ])
 
-    return midtransSnap
+    return midtrans
 }
 
 const updateStatusBasedOnMidtrans = async (data) => {
