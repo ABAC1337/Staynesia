@@ -96,7 +96,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
     if (payment.paymentStatus == newStatus) return payment
     if (newStatus == 'success') {
         const user = await userRepo.findUserById(payment.userId)
-        const getBookedDates = bookingService.getBookedDates(booking.listingId)
+        const getBookedDates = await bookingService.getBookedDates(booking.listingId)
         const available = bookingService.isBookingAvailable(getBookedDates, booking.checkIn, booking.checkOut)
         if (!available)
             throw new ErrorHandler("Cannot book due to booked by someone, please change the schedule", 400);
@@ -115,7 +115,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
         paidAt: settlement_time
     }
 
-    const getBookedDates = bookingService.getBookedDates(booking.listingId)
+    const getBookedDates = await bookingService.getBookedDates(booking.listingId)
     return await Promise.all([
         listingRepo.updateListing(booking.listingId, { bookedDate: getBookedDates }),
         paymentRepo.updatePayment(payment._id, paymentData)
