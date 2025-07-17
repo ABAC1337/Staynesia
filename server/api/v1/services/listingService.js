@@ -58,6 +58,7 @@ const updateListing = async (id, imgUrl, data) => {
     facility,
     capacity,
     price,
+    isActive
   } = data;
   const location = { province, city, address };
   const rules = { checkIn, checkOut, nightTime, additional };
@@ -70,7 +71,8 @@ const updateListing = async (id, imgUrl, data) => {
     imgUrl,
     facility,
     capacity,
-    price
+    price,
+    isActive
   };
   const listing = await listingRepo.updateListing(id, queryObj);
   if (!listing) throw new ErrorHandler("Listing not found", 404);
