@@ -130,6 +130,9 @@ const ListingSchema = new Schema({
         type: Boolean,
         default: true
     },
+    bookedDate: {
+        type: [Date]
+    },
     bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
     reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }]
 }, { timestamps: true });
@@ -138,7 +141,6 @@ const ListingSchema = new Schema({
 const BookingSchema = new Schema({
     checkIn: {
         type: Date,
-        min: [Date.now(), "Date invalid"],
         required: [true, "Check in is required field!"]
     },
     checkOut: {
@@ -155,7 +157,7 @@ const BookingSchema = new Schema({
         min: [0, 'Price must be greater than or equal 0'],
         required: [true, "Amount is required field!"]
     },
-    taxAmount:{
+    taxAmount: {
         type: Number,
         min: [0, 'Tax must be greater than or equal 0'],
         required: [true, "Amount is required field!"]
@@ -179,13 +181,13 @@ const BookingSchema = new Schema({
             message: "This status does not exist"
         }
     },
-    userId: { 
-        type: Schema.Types.ObjectId, 
+    userId: {
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: [true, "User is required"]
     },
-    listingId: { 
-        type: Schema.Types.ObjectId, 
+    listingId: {
+        type: Schema.Types.ObjectId,
         ref: 'Listing',
         required: [true, "Listing is required"]
     },
@@ -227,13 +229,13 @@ const PaymentSchema = new Schema({
         type: String,
         required: [true, "Midtrans token is required"]
     },
-    bookingId: { 
-        type: Schema.Types.ObjectId, 
+    bookingId: {
+        type: Schema.Types.ObjectId,
         ref: 'Booking',
         required: [true, "Booking is required"]
     },
-    userId: { 
-        type: Schema.Types.ObjectId, 
+    userId: {
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: [true, "User is required"]
     }
@@ -251,13 +253,13 @@ const ReviewSchema = new Schema({
         minlength: [5, "Review must be above 5 characters"],
         maxlength: [500, "Review must be below 500 characters"]
     },
-    userId: { 
-        type: Schema.Types.ObjectId, 
+    userId: {
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: [true, "User is required"]
     },
-    listingId: { 
-        type: Schema.Types.ObjectId, 
+    listingId: {
+        type: Schema.Types.ObjectId,
         ref: 'Listing',
         required: [true, "Listing is required"]
     },
@@ -265,13 +267,13 @@ const ReviewSchema = new Schema({
 
 // Wishlist Schema
 const WishlistSchema = new Schema({
-    userId: { 
-        type: Schema.Types.ObjectId, 
+    userId: {
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: [true, "User is required"]
     },
-    listingId: { 
-        type: Schema.Types.ObjectId, 
+    listingId: {
+        type: Schema.Types.ObjectId,
         ref: 'Listing',
         required: [true, "Listing is required"]
     },
