@@ -15,7 +15,7 @@ const createListing = asyncHandler(async (req, res, next) => {
 const updateListing = asyncHandler(async (req, res, next) => {
   const imgUrl = req.files.map((item) => item.filename)
   const parse = JSON.parse(req.body.form)
-  await listingService.updateListing(req.params.id, parse, imgUrl);
+  await listingService.updateListing(req.params.id, imgUrl, parse);
   return res.status(200).json({
     message: "Listing Updated",
   });
