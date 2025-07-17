@@ -70,8 +70,7 @@ const updateListing = async (id, imgUrl, data) => {
     imgUrl,
     facility,
     capacity,
-    price,
-    host,
+    price
   };
   const listing = await listingRepo.updateListing(id, queryObj);
   if (!listing) throw new ErrorHandler("Listing not found", 404);
