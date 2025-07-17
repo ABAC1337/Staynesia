@@ -1,26 +1,31 @@
 const bookingRepo = require("../repositories/bookingRepository");
 const listingRepo = require("../repositories/listingRepository");
-const dateConverter = require("../../../utils/dateConverter");
+const date = require("../../../utils/date");
 const userRepo = require("../repositories/userRepository");
 const ErrorHandler = require("../../../utils/errorHandler");
 
 const createBooking = async (id, data) => {
-  if (!data) throw new ErrorHandler("Value not found", 404);
+  if (!data) 
+    throw new ErrorHandler("Value not found", 404);
   const { checkIn, checkOut, listingId } = data;
 
-  const checkInDate = dateConverter(checkIn);
-  const checkOutDate = dateConverter(checkOut);
-  if (checkInDate >= checkOutDate) throw new ErrorHandler("Invalid Date", 400);
-  const bookedDates = await getBookedDates(data.listingId);
+  const listing = await listingRepo.findById(data.listingId)
+  if (!listing) 
+    throw new ErrorHandler("Listing not found", 404)
+  
+  const checkInDate = date.converter(checkIn);
+  const checkOutDate = date.converter(checkOut);
+  if (checkInDate >= checkOutDate) 
+    throw new ErrorHandler("Invalid Date", 400);
+
   const available = isBookingAvailable(
-    bookedDates,
-    data.checkIn,
-    data.checkOut
+    listing.bookedDate,
+    checkInDate,
+    checkOutDate
   );
   if (!available)
     throw new ErrorHandler("Cannot book due to booked by someone", 400);
 
-  const listing = await listingRepo.findById(data.listingId);
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
   const calculatePrice = listing.price * convertDuration;
@@ -31,8 +36,8 @@ const createBooking = async (id, data) => {
     throw new ErrorHandler("Invalid Value, value was minus", 400);
 
   const dataBooking = {
-    checkIn: checkInDate,
-    checkOut: checkOutDate,
+    checkIn: checkIn,
+    checkOut: checkOut,
     duration: convertDuration,
     calculatePrice: calculatePrice,
     taxAmount: taxAmount,
@@ -56,29 +61,32 @@ const createBooking = async (id, data) => {
 };
 
 const updateBooking = async (id, data) => {
-  if (!id) throw new ErrorHandler("Booking Not Found", 404);
-  const { checkIn, checkOut } = data;
+  if (!id) 
+    throw new ErrorHandler("Booking not found", 404);
+  const { checkIn, checkOut, listingId } = data;
 
-  const checkInDate = dateConverter(checkIn);
-  const checkOutDate = dateConverter(checkOut);
+  const listing = await listingRepo.findById(listingId)
+  if (!listing)
+    throw new ErrorHandler("Listing not found", 404)
+
+  const checkInDate = date.converter(checkIn);
+  const checkOutDate = date.converter(checkOut);
   if (checkInDate >= checkOutDate)
     throw new ErrorHandler(`Invalid Date ${checkInDate} - ${checkOutDate} : ${checkInDate >= checkOutDate}`, 400);
 
   const durationMs = checkOutDate - checkInDate;
   const convertDuration = durationMs / (1000 * 60 * 60 * 24);
-  const bookedDates = await getBookedDates(data.listingId);
   const available = isBookingAvailable(
-    bookedDates,
-    data.checkIn,
-    data.checkOut
+    listing.bookedDate,
+    checkInDate,
+    checkOutDate
   );
-
   if (!available)
     throw new ErrorHandler("Cannot book due to booked by someone", 400);
 
   const bookingData = {
-    checkIn: checkIn,
-    checkOut: checkOut,
+    checkIn: checkInDate,
+    checkOut: checkOutDate,
     duration: convertDuration
   }
   return await bookingRepo.updateBooking(id, bookingData);
@@ -103,38 +111,43 @@ const deleteBooking = async (id) => {
 };
 
 const isBookingAvailable = (bookedDates, newCheckIn, newCheckOut) => {
-  const startDate = dateConverter(newCheckIn);
-  const endDate = dateConverter(newCheckOut);
-  let currentDate = startDate;
+  const startDate = new Date(newCheckIn);
+  const endDate = new Date(newCheckOut);
+  let currentDate = new Date(startDate);
+
   while (currentDate <= endDate) {
-    const dateStr = currentDate.toISOString().split("T")[0];
+    const dateStr = currentDate.toISOString();
     if (bookedDates.includes(dateStr)) return false;
     currentDate.setDate(currentDate.getDate() + 1);
   }
   return true;
-}
+};
 
 const getBookedDates = async (listingId) => {
   const filterObj = {
     listingId: listingId,
     bookingStatus: "confirmed",
   };
+
   const optionsObj = {
-    select: "checkIn checkOut",
+    select: "-_id checkIn checkOut",
   };
+
   const queryObj = {
     filterObj,
     optionsObj,
   };
-  const booking = await bookingRepo.findBooking(queryObj);
+
+  const bookings = await bookingRepo.findBooking(queryObj);
   const result = [];
-  for (const bd of booking) {
-    let start = dateConverter(bd.checkIn);
-    const end = dateConverter(bd.checkOut);
-    if (isNaN(start) || isNaN(end)) continue;
+  for (const bd of bookings) {
+    let start = new Date(bd.checkIn)
+    const end = new Date(bd.checkOut)
+    if (isNaN(start) || isNaN(end)) continue
+
     while (start <= end) {
-      result.push(start.toISOString().split("T")[0]);
-      start.setDate(start.getDate() + 1);
+      result.push(start.toISOString().split("T")[0])
+      start.setDate(start.getDate() + 1)
     }
   }
   return result;
@@ -159,8 +172,7 @@ const getBookingById = async (id) => {
     filterObj,
     optionsObj,
   };
-  const result = await bookingRepo.findBooking(queryObj);
-  return result;
+  return await bookingRepo.findBooking(queryObj);
 };
 
 module.exports = {

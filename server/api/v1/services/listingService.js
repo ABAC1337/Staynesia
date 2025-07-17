@@ -1,6 +1,7 @@
 const listingRepo = require("../repositories/listingRepository");
 const userRepo = require("../repositories/userRepository");
 const ErrorHandler = require("../../../utils/errorHandler");
+const date = require('../../../utils/date');
 
 const createListing = async (id, urlImg, data) => {
   if (!data) throw new ErrorHandler("Value not found", 404);
@@ -41,7 +42,7 @@ const createListing = async (id, urlImg, data) => {
   return listing;
 };
 
-const updateListing = async (id, data) => {
+const updateListing = async (id, imgUrl, data) => {
   if (!id) throw new ErrorHandler("Listing not found", 404);
   const {
     province,
@@ -54,7 +55,6 @@ const updateListing = async (id, data) => {
     checkOut,
     nightTime,
     additional,
-    imgUrl,
     facility,
     capacity,
     price,
@@ -86,7 +86,8 @@ const deleteListing = async (id) => {
 };
 
 const getPagination = async (params) => {
-  const { province, city, category, capacity, priceMin, priceMax, facility, sort, page, limit } = params;
+  const { province, city, category, capacity, priceMin, priceMax,
+    checkIn, checkOut, facility, sort, page, limit } = params;
 
   const optionsObj = {};
   const filterObj = {};
@@ -95,8 +96,17 @@ const getPagination = async (params) => {
     if (province) filterObj["location.province"] = province;
     if (city) filterObj["location.city"] = city;
   }
-  if (priceMin && priceMax)
-    filterObj.price = { $gte: priceMin, $lte: priceMax }
+  if (priceMin && priceMax) {
+    const priceMinParse = parseInt(priceMin)
+    const priceMaxParse = parseInt(priceMax)
+    filterObj.price = { $gte: priceMinParse, $lte: priceMaxParse }
+  }
+  if (checkIn && checkout) {
+    const checkInDate = date.converter(checkIn)
+    const checkOutDate = date.converter(checkOut)
+    const range = date.range(checkInDate, checkOutDate)
+    filterObj.bookedDate = { $not: { $elemMatch: { $in: range } } }
+  }
   if (category) {
     const categories = category.split(",").map((c) => c.trim());
     filterObj.category = categories;
@@ -105,8 +115,10 @@ const getPagination = async (params) => {
     const facilities = facility.split(",").map((f) => f.trim());
     filterObj.facility = { $all: facilities };
   }
-  if (capacity) 
-    filterObj.capacity = { $gte: capacity };
+  if (capacity) {
+    const capacityParse = parseInt(capacity)
+    filterObj.capacity = { $gte: capacityParse };
+  }
   filterObj.isActive = true;
   if (sort) {
     const sortBy = String(sort).split(",").join(" ");

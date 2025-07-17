@@ -1,5 +1,6 @@
 const paymentRepo = require('../repositories/paymentRepository')
 const bookingRepo = require('../repositories/bookingRepository')
+const listingRepo = require('../repositories/listingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 const bookingService = require('./bookingService')
@@ -41,7 +42,7 @@ const createPayment = async (userId, data) => {
         credit_card: { secure: true },
         callback_url: `${process.env.FRONTEND_APP_URL}/bookings`
     };
-    
+
     const snap = await midtrans.snap.createTransaction(parameter)
     const paymentData = {
         order_id: order_id,
@@ -52,20 +53,20 @@ const createPayment = async (userId, data) => {
         bookingId: bookingId,
         userId: userId
     }
-    
+
     const payment = await paymentRepo.createPayment(paymentData)
     await Promise.all([
         bookingRepo.updateBooking(payment.bookingId, { paymentId: payment._id }),
         userRepo.updateUser(payment.userId, { $addToSet: { payments: payment._id } })
     ])
-    
+
     return midtrans
 }
 
 const updateStatusBasedOnMidtrans = async (data) => {
     const { order_id, status_code, gross_amount, signature_key, settlement_time,
         transaction_status: ts, fraud_status: fs, payment_type } = data;
-        
+
     const notification = await midtrans.core.transaction.notification(data)
     const payment = await paymentRepo.findPayment({ order_id: notification.order_id })
 
@@ -82,19 +83,24 @@ const updateStatusBasedOnMidtrans = async (data) => {
         newStatus = 'canceled'
     } else if (ts == 'pending') {
         newStatus = 'pending'
-    }
+    } else
+        newStatus = 'canceled'
 
     if (!newStatus) throw new ErrorHandler('Unknown Payment Status', 404)
     if (payment.paymentStatus == newStatus) return payment
     if (newStatus == 'success') {
         const booking = await bookingRepo.findBookingById(payment.bookingId)
+        const listing = await listingRepo.findById(booking.listingId)
         const user = await userRepo.findUserById(payment.userId)
-        const getBookedDates = await bookingService.getBookedDates(booking.listingId)
-        const available = bookingService.isBookingAvailable(getBookedDates, booking.checkIn, booking.checkOut)
+        const available = bookingService.isBookingAvailable(listing.bookedDate, booking.checkIn, booking.checkOut)
         if (!available)
             throw new ErrorHandler("Cannot book due to booked by someone, please change the schedule", 400);
-        await bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id })
-        await mailer.sendEmail(user.email, "Payment Success", "Payment dah selesai yh")
+        
+        await Promise.all([
+            bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id }),
+            listingRepo.updateListing(booking.listingId, { bookedDates: getBookedDates }),
+            mailer.sendEmail(user.email, "Payment Success", "Payment dah selesai yh")
+        ])
     }
     if (payment.status == 'cancel') {
         await bookingRepo.updateBooking(payment.bookingId, { paymentId: '' })
