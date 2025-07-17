@@ -9,8 +9,9 @@ router.post("/create",
 );
 
 router.route('/:id')
-    .patch(upload.array("listingImg", 10),
+    .put(upload.array("listingImg", 10),
         listingController.updateListing)
+    .patch(listingController.updateStatus)
     .delete(listingController.deleteListing)
 
 module.exports = router;

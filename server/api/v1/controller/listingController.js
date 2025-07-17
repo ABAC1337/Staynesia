@@ -21,6 +21,13 @@ const updateListing = asyncHandler(async (req, res, next) => {
   });
 });
 
+const updateStatus = asyncHandler(async (req, res, next) => {
+  await listingService.updateStatusListing(req.params.id, req.body)
+  return res.status(200).json({
+    message: "Listing Status Updated"
+  })
+})
+
 const deleteListing = asyncHandler(async (req, res, next) => {
   await listingService.deleteListing(req.params.id);
   return res.status(200).json({
@@ -60,6 +67,7 @@ const getListingId = asyncHandler(async (req, res, next) => {
 module.exports = {
   createListing,
   updateListing,
+  updateStatus,
   deleteListing,
   pagination,
   getListingId,

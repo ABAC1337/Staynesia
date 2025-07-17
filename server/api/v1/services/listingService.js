@@ -44,6 +44,7 @@ const createListing = async (id, urlImg, data) => {
 
 const updateListing = async (id, imgUrl, data) => {
   if (!id) throw new ErrorHandler("Listing not found", 404);
+  if (!data) throw new ErrorHandler("Value not found", 404);
   const {
     province,
     city,
@@ -78,6 +79,12 @@ const updateListing = async (id, imgUrl, data) => {
   if (!listing) throw new ErrorHandler("Listing not found", 404);
   return listing;
 };
+
+const updateStatusListing = async (id, data) => {
+  if (!id) throw new ErrorHandler("Listing not found", 404);
+  if (!data) throw new ErrorHandler("Value not found", 404);
+  return listingRepo.updateListing(id, { isActive: data.status })
+}
 
 const deleteListing = async (id) => {
   if (!id) throw new ErrorHandler("Listing not found", 404);
@@ -228,6 +235,7 @@ const getListingId = async (id) => {
 module.exports = {
   createListing,
   updateListing,
+  updateStatusListing,
   deleteListing,
   getPagination,
   getListingId,
