@@ -69,6 +69,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
         transaction_status: ts, fraud_status: fs, payment_type } = data;
 
     const payment = await paymentRepo.findPayment({ order_id: order_id })
+    const booking = await bookingRepo.findBookingById(payment.bookingId)
     if (!payment)
         throw new ErrorHandler('Order Id Not Found', 404)
 
@@ -94,17 +95,14 @@ const updateStatusBasedOnMidtrans = async (data) => {
     if (!newStatus) throw new ErrorHandler('Unknown Payment Status', 404)
     if (payment.paymentStatus == newStatus) return payment
     if (newStatus == 'success') {
-        const booking = await bookingRepo.findBookingById(payment.bookingId)
-        const listing = await listingRepo.findById(booking.listingId)
         const user = await userRepo.findUserById(payment.userId)
-        const available = bookingService.isBookingAvailable(listing.bookedDate, booking.checkIn, booking.checkOut)
+        const getBookedDates = bookingService.getBookedDates(booking.listingId)
+        const available = bookingService.isBookingAvailable(getBookedDates, booking.checkIn, booking.checkOut)
         if (!available)
             throw new ErrorHandler("Cannot book due to booked by someone, please change the schedule", 400);
-        const getBookedDates = bookingService.getBookedDates(booking.listingId)
-        
+
         await Promise.all([
             bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id }),
-            listingRepo.updateListing(booking.listingId, { bookedDates: getBookedDates }),
             mailer.sendEmail(user.email, "Payment Success", "Payment dah selesai yh")
         ])
     }
@@ -116,7 +114,12 @@ const updateStatusBasedOnMidtrans = async (data) => {
         paymentMethod: payment_type,
         paidAt: settlement_time
     }
-    return await paymentRepo.updatePayment(payment._id, paymentData)
+
+    const getBookedDates = bookingService.getBookedDates(booking.listingId)
+    return await Promise.all([
+        listingRepo.updateListing(booking.listingId, { bookedDate: getBookedDates }),
+        paymentRepo.updatePayment(payment._id, paymentData)
+    ])
 }
 
 const deletePayment = async (id) => {
