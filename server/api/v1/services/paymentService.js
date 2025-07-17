@@ -68,7 +68,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
     const { order_id, status_code, gross_amount, signature_key, settlement_time,
         transaction_status: ts, fraud_status: fs, payment_type } = data;
 
-    const payment = await paymentRepo.findPayment({ order_id: notification.order_id })
+    const payment = await paymentRepo.findPayment({ order_id: order_id })
     if (!payment)
         throw new ErrorHandler('Order Id Not Found', 404)
 
@@ -100,7 +100,8 @@ const updateStatusBasedOnMidtrans = async (data) => {
         const available = bookingService.isBookingAvailable(listing.bookedDate, booking.checkIn, booking.checkOut)
         if (!available)
             throw new ErrorHandler("Cannot book due to booked by someone, please change the schedule", 400);
-
+        const getBookedDates = bookingService.getBookedDates(booking.listingId)
+        
         await Promise.all([
             bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id }),
             listingRepo.updateListing(booking.listingId, { bookedDates: getBookedDates }),
