@@ -4,9 +4,10 @@ const listingRepo = require('../repositories/listingRepository')
 const userRepo = require('../repositories/userRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 const bookingService = require('./bookingService')
-const midtrans = require('../../../config/midtrans')
-const { v4: uuidv4 } = require('uuid');
+const snap = require('../../../config/midtrans')
 const mailer = require('../../../utils/mailer')
+const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto')
 
 const createPayment = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
@@ -43,13 +44,13 @@ const createPayment = async (userId, data) => {
         callback_url: `${process.env.FRONTEND_APP_URL}/bookings`
     };
 
-    const snap = await midtrans.snap.createTransaction(parameter)
+    const midtrans = await snap.createTransaction(parameter)
     const paymentData = {
         order_id: order_id,
         paymentMethod: 'Midtrans',
         amount: amount,
-        midtrans_redirect: snap.redirect_url,
-        midtrans_token: snap.token,
+        midtrans_redirect: midtrans.redirect_url,
+        midtrans_token: midtrans.token,
         bookingId: bookingId,
         userId: userId
     }
@@ -60,18 +61,22 @@ const createPayment = async (userId, data) => {
         userRepo.updateUser(payment.userId, { $addToSet: { payments: payment._id } })
     ])
 
-    return midtrans
+    return midtransSnap
 }
 
 const updateStatusBasedOnMidtrans = async (data) => {
     const { order_id, status_code, gross_amount, signature_key, settlement_time,
         transaction_status: ts, fraud_status: fs, payment_type } = data;
 
-    const notification = await midtrans.core.transaction.notification(data)
     const payment = await paymentRepo.findPayment({ order_id: notification.order_id })
-
     if (!payment)
         throw new ErrorHandler('Order Id Not Found', 404)
+
+    const hash = crypto.createHash('sha512')
+        .update(`${order_id}${status_code}${gross_amount}${process.env.MIDTRANS_SERVER_KEY}`)
+        .digest('hex');
+    if (signature_key !== hash)
+        throw new ErrorHandler('Invalid Signature Key', 400)
 
     let newStatus;
     if (ts == 'capture') {
@@ -95,7 +100,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
         const available = bookingService.isBookingAvailable(listing.bookedDate, booking.checkIn, booking.checkOut)
         if (!available)
             throw new ErrorHandler("Cannot book due to booked by someone, please change the schedule", 400);
-        
+
         await Promise.all([
             bookingRepo.updateBooking(payment.bookingId, { bookingStatus: 'confirmed', paymentId: payment._id }),
             listingRepo.updateListing(booking.listingId, { bookedDates: getBookedDates }),
