@@ -2,7 +2,7 @@ const asyncHandler = require('../../../utils/asyncHandler')
 const reviewService = require('../services/reviewService')
 
 const createReview = asyncHandler(async (req, res, next) => {
-    await reviewService.createReview(req.body)
+    await reviewService.createReview(req.user.id, req.body)
     return res.status(201).json({
         message: 'Review created',
     })

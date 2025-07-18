@@ -3,9 +3,16 @@ const userRepo = require('../repositories/userRepository')
 const listingRepo = require('../repositories/listingRepository')
 const ErrorHandler = require('../../../utils/errorHandler')
 
-const createReview = async (data) => {
+const createReview = async (userId, data) => {
     if (!data) throw new ErrorHandler('Value not found', 404)
-    const review = await reviewRepo.createReview(data)
+    if (!userId) throw new ErrorHandler('User not found', 404)
+    const payload = {
+        rating: data.rating,
+        reviewText: data.message,
+        userId: userId,
+        listingId: data.listingId
+    }
+    const review = await reviewRepo.createReview(payload)
     const calculate = await reviewRepo.calculationReview(review.listingId)
     const { rating, numRating } = calculate[0]
     const update = {
