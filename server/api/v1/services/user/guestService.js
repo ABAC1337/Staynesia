@@ -31,8 +31,8 @@ const getGuestBooking = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    const bookings = await userRepo.findUser(queryObj)
-    const formattedBookings = bookings.map((booking) => {
+    const user = await userRepo.findUser(queryObj)
+    const formattedBookings = user.bookings.map((booking) => {
         const b = booking.toObject ? booking.toObject() : booking;
         return {
             ...b,
@@ -63,8 +63,8 @@ const getGuestPayment = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    const payment = await userRepo.findUser(queryObj)
-    const formattedPayments = payment.map((payment) => {
+    const user = await userRepo.findUser(queryObj)
+    const formattedPayments = user.payments.map((payment) => {
         const p = payment.toObject ? payment.toObject() : payment
         return {
             ...p,
