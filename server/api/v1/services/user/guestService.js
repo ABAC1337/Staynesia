@@ -71,7 +71,7 @@ const getGuestPayment = async (id, statusFilter) => {
         const paymentMap = (user.payments || []).map((payment) => {
             const p = payment.toObject ? payment.toObject() : payment;
             return {
-                ...b,
+                ...p,
                 paidAtWIB: date.WIBConverter(p.paidAt)
             }
         }).map(({ paidAt, ...rest }) => rest)
