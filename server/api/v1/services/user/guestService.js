@@ -31,19 +31,16 @@ const getGuestBooking = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    const users = await userRepo.findUser(queryObj)
-    const userMap = users.map((user) => {
-        const bookingMap = (user.bookings || []).map((booking) => {
-            const b = booking.toObject ? booking.toObject() : booking;
-            return {
-                ...b,
-                checkInWIB: date.WIBConverter(b.checkIn),
-                checkOutWIB: date.WIBConverter(b.checkOut)
-            }
-        }).map(({ checkIn, checkOut, ...rest }) => rest)
-        return bookingMap
-    })
-    return userMap
+    const user = await userRepo.findUser(queryObj)
+    const bookingMap = (user[0].bookings || []).map((booking) => {
+        const b = booking.toObject ? booking.toObject() : booking;
+        return {
+            ...b,
+            checkInWIB: date.WIBConverter(b.checkIn),
+            checkOutWIB: date.WIBConverter(b.checkOut)
+        }
+    }).map(({ checkIn, checkOut, ...rest }) => rest)
+    return bookingMap
 }
 
 const getGuestPayment = async (id, statusFilter) => {
@@ -66,18 +63,15 @@ const getGuestPayment = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    const users = await userRepo.findUser(queryObj)
-    const userMap = users.map((user) => {
-        const paymentMap = (user.payments || []).map((payment) => {
-            const p = payment.toObject ? payment.toObject() : payment;
-            return {
-                ...p,
-                paidAtWIB: date.WIBConverter(p.paidAt)
-            }
-        }).map(({ paidAt, ...rest }) => rest)
-        return paymentMap
-    })
-    return userMap
+    const user = await userRepo.findUser(queryObj)
+    const paymentMap = (user[0].payments || []).map((payment) => {
+        const p = payment.toObject ? payment.toObject() : payment;
+        return {
+            ...p,
+            paidAtWIB: date.WIBConverter(p.paidAt)
+        }
+    }).map(({ paidAt, ...rest }) => rest)
+    return paymentMap
 }
 
 
