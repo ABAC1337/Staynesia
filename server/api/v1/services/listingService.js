@@ -194,7 +194,7 @@ const getFilterPagination = async () => {
 
 const getTopRated = async () => {
   const optionsObj = {
-    select: "title category location.city location.province price imgUrl rating numRating",
+    select: "title category location.city location.province price imgUrl rating numRating rating numRating",
     sort: '-rating -numRating',
     limit: 10
   }
