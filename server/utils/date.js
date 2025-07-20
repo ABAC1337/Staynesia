@@ -11,8 +11,20 @@ const range = (start, end) => {
     while (current <= endDate) {
         dates.push(current.toISOString());
         current.setDate(current.getDate() + 1);
-    } 
+    }
     return dates;
 }
 
-module.exports = { converter, range }
+const WIBConverter = (dateStr) => {
+    return new Date(dateStr).toLocaleString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+    });
+}
+
+module.exports = { converter, range, WIBConverter }
