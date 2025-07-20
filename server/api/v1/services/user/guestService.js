@@ -1,5 +1,6 @@
 const ErrorHandler = require('../../../../utils/errorHandler')
 const userRepo = require('../../repositories/userRepository')
+const date = require("../../../../utils/date");
 
 const getGuestBooking = async (id, statusFilter) => {
     if (!id) throw new ErrorHandler('User not found', 404)
@@ -30,7 +31,16 @@ const getGuestBooking = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    return await userRepo.findUser(queryObj)
+    const bookings = await userRepo.findUser(queryObj)
+    const formattedBookings = bookings.map((booking) => {
+        const b = booking.toObject ? booking.toObject() : booking;
+        return {
+            ...b,
+            checkInWIB: date.WIBConverter(b.checkIn),
+            checkOutWIB: date.WIBConverter(b.checkOut),
+        }
+    }).map(({ checkIn, checkOut, ...rest }) => rest)
+    return formattedBookings
 }
 
 const getGuestPayment = async (id, statusFilter) => {
@@ -53,7 +63,15 @@ const getGuestPayment = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    return await userRepo.findUser(queryObj)
+    const payment = await userRepo.findUser(queryObj)
+    const formattedPayments = payment.map((payment) => {
+        const p = payment.toObject ? payment.toObject() : payment
+        return {
+            ...p,
+            paidAtWIB: date.WIBConverter(p.paidAt)
+        }
+    }).map(({ paidAt, ...rest }) => rest)
+    return formattedPayments
 }
 
 

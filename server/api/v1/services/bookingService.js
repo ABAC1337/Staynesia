@@ -5,17 +5,17 @@ const userRepo = require("../repositories/userRepository");
 const ErrorHandler = require("../../../utils/errorHandler");
 
 const createBooking = async (id, data) => {
-  if (!data) 
+  if (!data)
     throw new ErrorHandler("Value not found", 404);
   const { checkIn, checkOut, listingId } = data;
 
   const listing = await listingRepo.findById(data.listingId)
-  if (!listing) 
+  if (!listing)
     throw new ErrorHandler("Listing not found", 404)
-  
+
   const checkInDate = date.converter(checkIn);
   const checkOutDate = date.converter(checkOut);
-  if (checkInDate >= checkOutDate) 
+  if (checkInDate >= checkOutDate)
     throw new ErrorHandler("Invalid Date", 400);
 
   const available = isBookingAvailable(
@@ -61,7 +61,7 @@ const createBooking = async (id, data) => {
 };
 
 const updateBooking = async (id, data) => {
-  if (!id) 
+  if (!id)
     throw new ErrorHandler("Booking not found", 404);
   const { checkIn, checkOut, listingId } = data;
 
@@ -166,13 +166,23 @@ const getBookingById = async (id) => {
         path: 'paymentId',
         select: 'midtrans_redirect'
       }
-    ]
+    ],
+    select: '-createdAt -updatedAt'
   };
   const queryObj = {
     filterObj,
     optionsObj,
   };
-  return await bookingRepo.findBooking(queryObj);
+  const bookings = await bookingRepo.findBooking(queryObj);
+  const formattedBookings = bookings.map((booking) => {
+    const b = booking.toObject ? booking.toObject() : booking;
+    return {
+      ...b,
+      checkInWIB: date.WIBConverter(b.checkIn),
+      checkOutWIB: date.WIBConverter(b.checkOut),
+    };
+  }).map(({ checkIn, checkOut, ...rest }) => rest)
+  return formattedBookings
 };
 
 module.exports = {

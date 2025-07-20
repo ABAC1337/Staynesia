@@ -6,6 +6,7 @@ const ErrorHandler = require('../../../utils/errorHandler')
 const bookingService = require('./bookingService')
 const snap = require('../../../config/midtrans')
 const mailer = require('../../../utils/mailer')
+const date = require('../../../utils/date')
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto')
 
@@ -112,7 +113,7 @@ const updateStatusBasedOnMidtrans = async (data) => {
     const paymentData = {
         paymentStatus: newStatus,
         paymentMethod: payment_type,
-        paidAt: settlement_time
+        paidAt: date.converter(settlement_time)
     }
 
     const getBookedDates = await bookingService.getBookedDates(booking.listingId)
