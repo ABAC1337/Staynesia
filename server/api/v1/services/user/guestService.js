@@ -31,16 +31,19 @@ const getGuestBooking = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    const user = await userRepo.findUser(queryObj)
-    const formattedBookings = user.bookings.map((booking) => {
-        const b = booking.toObject ? booking.toObject() : booking;
-        return {
-            ...b,
-            checkInWIB: date.WIBConverter(b.checkIn),
-            checkOutWIB: date.WIBConverter(b.checkOut),
-        }
-    }).map(({ checkIn, checkOut, ...rest }) => rest)
-    return formattedBookings
+    const users = await userRepo.findUser(queryObj)
+    const userMap = users.map((user) => {
+        const bookingMap = (user.bookings || []).map((booking) => {
+            const b = booking.toObject ? booking.toObject() : booking;
+            return {
+                ...b,
+                checkInWIB: date.WIBConverter(b.checkIn),
+                checkOutWIB: date.WIBConverter(b.checkOut)
+            }
+        }).map(({ checkIn, checkOut, ...rest }) => rest)
+        return bookingMap
+    })
+    return userMap
 }
 
 const getGuestPayment = async (id, statusFilter) => {
@@ -63,15 +66,18 @@ const getGuestPayment = async (id, statusFilter) => {
     filterObj._id = id
     queryObj.filterObj = filterObj
     queryObj.optionsObj = optionsObj
-    const user = await userRepo.findUser(queryObj)
-    const formattedPayments = user.payments.map((payment) => {
-        const p = payment.toObject ? payment.toObject() : payment
-        return {
-            ...p,
-            paidAtWIB: date.WIBConverter(p.paidAt)
-        }
-    }).map(({ paidAt, ...rest }) => rest)
-    return formattedPayments
+    const users = await userRepo.findUser(queryObj)
+    const userMap = users.map((user) => {
+        const paymentMap = (user.payments || []).map((payment) => {
+            const p = payment.toObject ? payment.toObject() : payment;
+            return {
+                ...b,
+                paidAtWIB: date.WIBConverter(p.paidAt)
+            }
+        }).map(({ paidAt, ...rest }) => rest)
+        return paymentMap
+    })
+    return userMap
 }
 
 
